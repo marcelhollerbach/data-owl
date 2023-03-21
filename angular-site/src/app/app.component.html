@@ -1,0 +1,32 @@
+<div class="screen">
+  <mat-toolbar>
+    <button mat-icon-button aria-label="icon-button with menu icon" (click)="drawer.toggle()">
+      <mat-icon>menu</mat-icon>
+    </button>
+    <span>Data Manager</span>
+    <span class="app-title-spacer"></span>
+    <button mat-icon-button aria-label="icon-button with heart icon">
+      <mat-icon>electrical_services</mat-icon>
+    </button>
+    <button mat-icon-button aria-label="icon-button with share icon">
+      <mat-icon>settings</mat-icon>
+    </button>
+  </mat-toolbar>
+  <mat-drawer-container>
+    <mat-drawer #drawer mode="side">
+      <a routerLink="/dataEntries/">
+        <button mat-raised-button>
+          Registered Data
+        </button>
+      </a>
+    </mat-drawer>
+    <mat-drawer #drawer mode="side">
+      <a routerLink="/traitManagement/">
+        <button mat-raised-button>
+          Trait Management
+        </button>
+      </a>
+    </mat-drawer>
+    <router-outlet></router-outlet>
+  </mat-drawer-container>
+</div>

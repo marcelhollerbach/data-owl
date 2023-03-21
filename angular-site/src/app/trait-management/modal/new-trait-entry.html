@@ -1,0 +1,50 @@
+<h1 mat-dialog-title>Create new Trait</h1>
+<h2 *ngIf="this.error.display == true">{{this.error.backend.error}}</h2>
+<h3 *ngIf="this.error.display == true">{{this.error.backend.message}}</h3>
+<h5>{{version}}</h5>
+<mat-form-field appearance="fill">
+    <mat-label>Title</mat-label>
+    <input type="text" matInput [(ngModel)]="this.title">
+    <mat-hint>The title of the trait.</mat-hint>
+</mat-form-field>
+<br>
+<mat-form-field appearance="fill">
+    <mat-label>Description</mat-label>
+    <input type="text" matInput [(ngModel)]="this.description">
+    <mat-hint>The description of the trait.</mat-hint>
+</mat-form-field>
+<br>
+<mat-accordion class="example-headers-align"  multi>
+    <mat-expansion-panel #panel *ngFor="let field of fields;" 
+        [expanded]="field.open">
+        <mat-expansion-panel-header>
+            <mat-panel-title>
+                {{field.data.name}}
+            </mat-panel-title>
+        </mat-expansion-panel-header>
+        <mat-form-field appearance="fill">
+            <mat-label>Name</mat-label>
+            <input type="text" matInput [(ngModel)]="field.data.name">
+            <mat-hint>The name of field</mat-hint>
+        </mat-form-field>
+        <br>
+        <mat-form-field appearance="fill">
+            <mat-label>Description</mat-label>
+            <input type="text" matInput [(ngModel)]="field.data.description">
+            <mat-hint>The description of the field.</mat-hint>
+        </mat-form-field>
+        <br>
+        <mat-form-field appearance="fill">
+            <mat-label>Format</mat-label>
+            <input type="text" matInput [(ngModel)]="field.data.format">
+            <mat-hint>The description of the field.</mat-hint>
+        </mat-form-field>
+    </mat-expansion-panel>
+    <button mat-button (click)="addDummyField()">Add new+</button>
+</mat-accordion>
+<div mat-dialog-actions>
+    <button *ngIf="this.data.id == ''" mat-button cdkFocusInitial (click)="updateEntry()" [disabled]="this.in_flight">Create</button>
+    <button *ngIf="this.data.id != ''" mat-button cdkFocusInitial (click)="updateEntry()" [disabled]="this.in_flight">Update</button>
+    <button *ngIf="this.data.id != ''" mat-button cdkFocusInitial (click)="deleteEntry()" [disabled]="this.in_flight">Delete</button>
+    <button mat-button mat-dialog-close [disabled]="this.in_flight">Cancel</button>
+</div>

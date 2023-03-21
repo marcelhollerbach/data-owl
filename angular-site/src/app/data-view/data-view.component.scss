@@ -1,0 +1,56 @@
+.example-action-buttons {
+    padding-bottom: 20px;
+}
+
+.example-headers-align .mat-expansion-panel-header-description {
+    justify-content: space-between;
+    align-items: center;
+}
+
+.example-headers-align .mat-mdc-form-field + .mat-mdc-form-field {
+    margin-left: 8px;
+}
+
+.button-bar {
+    padding: 10px 10px 0px 20px;
+    button {
+        margin: 10px
+    }
+}
+
+
+.mat-column-Name {
+    padding-left: 16px;
+    font-size: 20px;
+    width: 20%
+}
+
+
+.mat-column-Description {
+    padding-right: 24px;
+    text-align: center;
+    font-size: 20px;
+    width: 80%
+}
+
+mat-row.mat-mdc-row{
+    &:hover{
+        background-color: #fff5a1;
+    }
+    border-bottom: black 2px;
+}
+
+.border_style {
+    th {
+        //border-width: 0px 2px 0px 0x;
+        border-bottom: black 2px;
+    }
+    td {
+        //border-width: 0px 2px 0px 0x;
+        border-bottom: black 2px;
+    }
+}
+
+.mdc-data-table__cell {
+    border-width: 0px;
+}

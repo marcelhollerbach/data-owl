@@ -1,0 +1,40 @@
+<h1 mat-dialog-title>Create new data entry</h1>
+<mat-chip-listbox #list (change)="assigned_traits_changed(list)" multiple="true">
+    <mat-chip-option *ngFor="let trait of data_traits$ | async;" 
+                [selected]="this.implemented_traits.indexOf(trait.title) != -1" 
+                [disabled]="trait.title == 'Default'">{{trait.title}}</mat-chip-option>
+</mat-chip-listbox>
+
+<mat-accordion class="example-headers-align"  multi>
+    <mat-expansion-panel #panel 
+        *ngFor="let trait of data_instance" 
+        [expanded]="trait.klass.title == 'Default'" 
+        [disabled]="implemented_traits.indexOf(trait.klass.title) == -1">
+        <mat-expansion-panel-header>
+            <mat-panel-title>
+                {{trait.klass.title}}
+            </mat-panel-title>
+            <mat-panel-description>
+                {{trait.klass.description}}
+            </mat-panel-description>
+        </mat-expansion-panel-header>
+        <div *ngFor="let attr of trait.instances">
+            <div [ngSwitch]="attr.meta.format">
+                <mat-form-field *ngSwitchCase="'simple_string'" appearance="fill">
+                    <mat-label>{{attr.meta.name}}</mat-label>
+                    <input ngModel type="text" [(ngModel)]="attr.instance" matInput>
+                    <mat-hint>{{attr.meta.description}}</mat-hint>
+                </mat-form-field>
+                <div *ngSwitchDefault>
+                    Format {{attr.meta.format}} not understood                    
+                </div>
+            </div>
+        </div>
+    </mat-expansion-panel>
+</mat-accordion>
+<div mat-dialog-actions>
+    <button *ngIf="this.data.id == ''" mat-button cdkFocusInitial (click)="updateEntry()" [disabled]="this.in_flight">Create</button>
+    <button *ngIf="this.data.id != ''" mat-button cdkFocusInitial (click)="updateEntry()" [disabled]="this.in_flight">Update</button>
+    <button *ngIf="this.data.id != ''" mat-button cdkFocusInitial (click)="deleteEntry()" [disabled]="this.in_flight">Delete</button>
+    <button mat-button mat-dialog-close [disabled]="this.in_flight">Cancel</button>
+</div>
