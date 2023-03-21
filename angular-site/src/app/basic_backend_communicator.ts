@@ -8,7 +8,7 @@ export class BackendInteractionHandler<T,U> implements Observer<T> {
     complete: () => void;
 
     constructor(public backend: BackendCommunicator<U>) {
-        this.next = (v) => {
+        this.next = (_) => {
             backend.in_flight = false;
             backend.dialogRef.close();
         };

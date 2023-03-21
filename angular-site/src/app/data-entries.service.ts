@@ -23,7 +23,6 @@ export interface DataEntryPostReply {
   description: string
 }
 
-
 @Injectable({
   providedIn: 'root'
 })

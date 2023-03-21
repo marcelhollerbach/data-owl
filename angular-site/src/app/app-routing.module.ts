@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { DataViewComponent } from './data-view/data-view.component';
+import { DataViewComponent } from './data-management/data-view.component';
 import { TraitManagementComponent } from './trait-management/trait-management.component';
 import { WizardComponent } from './wizard/wizard.component';
 
