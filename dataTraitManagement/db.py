@@ -88,3 +88,4 @@ class TraitAdapter():
         cur.execute("UPDATE data_trait SET description = ? WHERE title = ? and version = ?",
                     (trait.description, trait.title, int(version[0])))
         con.commit()
+

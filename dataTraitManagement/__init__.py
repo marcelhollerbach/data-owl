@@ -4,6 +4,7 @@ from typing import Dict
 from dataclasses_json import dataclass_json
 from flask import Blueprint, jsonify, request, Response
 
+from basic.annotations import login_required
 from basic import DataTrait, TraitAttribute
 from dataTraitManagement.db import TraitAdapter
 
@@ -18,16 +19,19 @@ from dataTrait import adapter as trait_adapter
 
 
 @routes.route('/dataTrait/', methods=['GET'])
+@login_required
 def list_all_dcs():
     return jsonify(list(get_data_traits_versions().values()))
 
 
 @routes.route('/dataTraitManagement/', methods=['GET'])
+@login_required
 def list_all_for_management_dcs():
     return jsonify(get_data_traits_for_management())
 
 
 @routes.route('/dataTraitManagement/<string:name>', methods=['GET'])
+@login_required
 def get_management_dc_latest(name: str):
     return jsonify(get_user_managed_data_traits_versions(name)[0])
 
@@ -54,6 +58,7 @@ def calculate_lookup_dict(trait_instance: DataTrait) -> Dict[str, TraitAttribute
 
 
 @routes.route('/dataTraitManagement/<string:name>', methods=['POST'])
+@login_required
 def post_new_datatrait(name: str):
     data = request.get_json()
 
@@ -93,6 +98,7 @@ def post_new_datatrait(name: str):
 
 
 @routes.route('/dataTraitManagement/<string:name>', methods=['DELETE'])
+@login_required
 def delete_datatrait(name: str):
     # FIXME ensure that no data entry is referencing this trait
     adapter.delete_trait(name)
@@ -100,6 +106,7 @@ def delete_datatrait(name: str):
 
 
 @routes.route('/dataTraitManagement/', methods=['PUT'])
+@login_required
 def put_new_datatrait():
     data = request.get_json()
 
@@ -110,7 +117,7 @@ def put_new_datatrait():
     if name_error is not None:
         return Response(status=400, response=name_error.to_json())
 
-    if trait.version is not 0:
+    if trait.version != 0:
         error = NameInvalid()
         error.message = "Version must be 0"
         return Response(status=400, response=error.to_json())

@@ -2,6 +2,7 @@ import json
 
 from flask import Blueprint, request, Response
 
+from basic.annotations import login_required
 from dataEntries.db import DataEntriesAdapter
 from dataEntries.model import DataEntry, DataEntryPostReply, DataEntryResult, DefaultInstanceMissing
 from dataTrait import adapter as trait_adapter
@@ -14,6 +15,7 @@ adapter = DataEntriesAdapter()
 
 
 @routes.route('/dataEntries', methods=['GET'])
+@login_required
 def list_all_entries():
     ids = adapter.find_all_valid_ids()
     default_trait = trait_adapter.find_data_trait("Default")
@@ -22,6 +24,7 @@ def list_all_entries():
 
 
 @routes.route('/dataEntry/<string:id>', methods=['GET'])
+@login_required
 def query_entry(id: str):
     if not adapter.valid_id(id):
         return Response(status=404)
@@ -35,6 +38,7 @@ def query_entry(id: str):
 
 
 @routes.route('/dataEntry/<string:id>', methods=['POST'])
+@login_required
 def update_entry(id: str):
     if not adapter.valid_id(id):
         return Response(status=404)
@@ -84,6 +88,7 @@ def update_entry(id: str):
 
 
 @routes.route('/dataEntry/<string:id>', methods=['DELETE'])
+@login_required
 def delete_entry(id: str):
     if not adapter.valid_id(id):
         return Response(status=404)
@@ -98,6 +103,7 @@ def delete_entry(id: str):
 
 
 @routes.route('/dataEntry', methods=['PUT'])
+@login_required
 def put_new_dc():
     data_entry_dict = request.get_json()
 
