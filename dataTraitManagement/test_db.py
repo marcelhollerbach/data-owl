@@ -36,7 +36,7 @@ class TestTraitAdapter(TestCase):
             self.assertEqual(trait[0].title, result.title)
             self.assertEqual(trait[0].description, result.description)
             self.assertEqual(trait[0].version, result.version)
-            self.adapter.delete_trait(trait[0].title, trait[0].version)
+            self.adapter.delete_trait(trait[0].title)
 
     def tearDown(self) -> None:
         os.remove(TEST_DATABASE)
