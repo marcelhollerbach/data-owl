@@ -4,9 +4,9 @@ import json
 from dataclasses_json import dataclass_json
 from flask import Blueprint, Response, request
 
-from basic import DataTraitInstance
+from basic import DataTraitInstance, DataTrait
 from basic.annotations import login_required
-from dataEntries import adapter, DataEntryResult, DataEntry, DefaultInstanceMissing, DataEntryPostReply
+from dataEntries import adapter
 from dataTrait import adapter as trait_adapter
 from dataTrait.api import find_relevant_traits
 from dataTraitManagement.api import get_data_traits_versions
