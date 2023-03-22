@@ -1,0 +1,4 @@
+/static/
+.pytest_cache
+.coverage
+.idea
