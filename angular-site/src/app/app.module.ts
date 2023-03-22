@@ -9,7 +9,7 @@ import { DataViewComponent } from './data-management/data-view.component';
 import { NewDataEntry } from "./data-management/modal/new-data-entry";
 import { WizardComponent } from './wizard/wizard.component';
 import { HttpClientModule } from '@angular/common/http';
-import { FormsModule }   from '@angular/forms';
+import { FormsModule, ReactiveFormsModule }   from '@angular/forms';
 import { TraitManagementComponent } from './trait-management/trait-management.component';
 import { NewTraitEntry } from './trait-management/modal/new-trait-entry';
 
@@ -23,6 +23,7 @@ import { NewTraitEntry } from './trait-management/modal/new-trait-entry';
     TraitManagementComponent,
   ],
   imports: [
+    ReactiveFormsModule,
     BrowserModule,
     AppRoutingModule,
     MaterialExampleModule,
