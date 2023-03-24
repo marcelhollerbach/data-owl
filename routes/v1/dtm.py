@@ -3,7 +3,7 @@ from typing import Dict
 
 from apiflask import APIBlueprint
 from dataclasses_json import dataclass_json
-from flask import jsonify, request, Response, Blueprint
+from flask import jsonify, request, Response
 
 from basic import DataTrait, TraitAttribute
 from basic.annotations import login_required

@@ -20,6 +20,7 @@ oauth.register(
     server_metadata_url=f'https://{env.get("AUTH0_DOMAIN")}/.well-known/openid-configuration'
 )
 
+
 @routes.route("/login")
 def login():
     return oauth.auth0.authorize_redirect(

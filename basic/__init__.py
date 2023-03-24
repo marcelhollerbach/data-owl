@@ -19,7 +19,7 @@ class TraitAttribute:
     def validate(self, instance: (str, str)):
         assert instance[0] == self.name
         # We only have simple strings for now so always true
-        #FIXME validate format
+        # FIXME validate format
 
 
 @dataclass_json

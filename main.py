@@ -1,6 +1,6 @@
 import logging
 
-from flask import redirect, render_template
+from flask import render_template
 
 from app import app
 from basic.annotations import login_required

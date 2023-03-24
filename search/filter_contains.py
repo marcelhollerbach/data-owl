@@ -1,6 +1,6 @@
 from dataEntries import adapter
 from dataTrait import adapter as dt_adapter
-from search.api import AbstractFilter, VerificationException, register_filter
+from search.api import AbstractFilter, VerificationException
 
 
 class ContainsFilter(AbstractFilter):
@@ -28,4 +28,3 @@ class ContainsFilter(AbstractFilter):
                     if self.value in v:
                         result.append(id)
         return result
-

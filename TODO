@@ -1,0 +1,7 @@
+- Visual cleanup
+- Store who is upgrading which type
+- Delete verification of type, only delete a type if its not used anymore
+- How about a README file
+- Usage report of type
+- More and better basic types
+- Better search filters

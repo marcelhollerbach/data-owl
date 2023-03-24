@@ -1,15 +1,13 @@
 import datetime
 import uuid
 
-from click import UUID
-
 from basic import DataTrait
 from basic.db import get_db_connection
 
 DATE_FORMAT = "%Y-%m-%d %H:%M:%S.%f"
 
 
-def id_generator() -> UUID:
+def id_generator() -> uuid.UUID:
     return uuid.uuid4()
 
 
@@ -92,12 +90,13 @@ class DataEntriesAdapter:
     def fetch_all_implementors(self, trait: DataTrait):
         con = get_db_connection()
         cur = con.cursor()
-        cur.execute("SELECT dv.id, valid_until FROM data_vtable dv, data_entries de WHERE trait_name = ? and dv.id = de.id",
-                    (trait.title,))
+        cur.execute(
+            "SELECT dv.id, valid_until FROM data_vtable dv, data_entries de WHERE trait_name = ? and dv.id = de.id",
+            (trait.title,))
         data_result = cur.fetchall()
         return [x[0] for x in data_result if
                 datetime.datetime.strptime(x[1], DATE_FORMAT) >= datetime.datetime.now()]
-        #return [line[0] for line in data_result]
+        # return [line[0] for line in data_result]
 
     def ensure_data(self):
         con = get_db_connection()

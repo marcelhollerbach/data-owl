@@ -46,7 +46,10 @@ class DataTraitDBOperation():
 
     def receive(self, id: str) -> DataTraitInstance:
         """
-        Get the values of this trait for the given id. This does not validate that there is actually an instance of this.
+        Get the values of this trait.
+
+        Get the values of this trait for the given id. This does not validate that there is actually
+        an instance of this.
         :param id: The id of the data Entry
         :return: The instance of this data trait.
         """
