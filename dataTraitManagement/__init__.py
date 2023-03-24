@@ -1,3 +1,3 @@
-from dataTraitManagement.db import TraitAdapter
+from dataTraitManagement.db import TraitManagementAdapter
 
-adapter = TraitAdapter()
+adapter = TraitManagementAdapter()

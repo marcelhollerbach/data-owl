@@ -1,10 +1,11 @@
 import logging
 from os import environ as env
 
-from flask import Flask
+from apiflask import APIFlask
 
 logging.basicConfig()
 logging.root.setLevel(logging.DEBUG)
 
-app = Flask(__name__)
+app = APIFlask(__name__)
+app.config['SPEC_FORMAT'] = 'yaml'
 app.secret_key = env.get("APP_SECRET_KEY")

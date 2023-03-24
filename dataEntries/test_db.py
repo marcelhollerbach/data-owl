@@ -29,6 +29,9 @@ class TestDataEntriesAdapter(TestCase):
         with self.app.app_context():
             self.adapter.ensure_data()
 
+    def tearDown(self) -> None:
+        os.remove(TEST_DATABASE)
+
     def test_exists_id(self):
         with self.app.app_context():
             self.assertFalse(self.adapter.exists_id('aaaa'))
@@ -116,6 +119,3 @@ class TestDataEntriesAdapter(TestCase):
             self.assertEqual(set(self.adapter.fetch_all_implementors(trait)), {id1, id2})
             self.adapter.invalidate_id(id1)
             self.assertEqual(set(self.adapter.fetch_all_implementors(trait)), {id2})
-
-    def tearDown(self) -> None:
-        os.remove(TEST_DATABASE)

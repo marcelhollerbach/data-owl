@@ -1,4 +1,5 @@
 /static/
+/templates/
 .pytest_cache
 .coverage
 .idea

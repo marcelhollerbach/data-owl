@@ -1,6 +1,7 @@
 import dataclasses
 from typing import Dict
 
+from apiflask import APIBlueprint
 from dataclasses_json import dataclass_json
 from flask import jsonify, request, Response, Blueprint
 
@@ -10,7 +11,7 @@ from dataTrait import adapter as trait_adapter
 from dataTraitManagement.api import get_data_traits_versions, get_data_traits_for_management, \
     get_user_managed_data_traits_versions, adapter
 
-routes = Blueprint('dataTraitManagement', __name__)
+routes = APIBlueprint('dataTraitManagement', __name__)
 
 
 @routes.route('/dataTrait/', methods=['GET'])
@@ -85,8 +86,6 @@ def post_new_datatrait(name: str):
         trait_update.version = trait_info[1] + 1
         adapter.create_trait(trait_update)
 
-    # FIXME should we switch this to somewhere else ?
-    adapter.ensure_data()
     trait_adapter.flush_data_trait_tables()
 
     return Response(status=202)
@@ -125,6 +124,7 @@ def put_new_datatrait():
         return Response(status=400, response=field_name_error.to_json())
 
     adapter.create_trait(trait)
+    trait_adapter.flush_data_trait_tables()
 
     return Response(status=202)
 

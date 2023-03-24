@@ -1,5 +1,5 @@
 flask
-flask-rest-api
 dataclasses-json
 authlib>=1.0
 requests>=2.27.1
+apiflask[yaml]

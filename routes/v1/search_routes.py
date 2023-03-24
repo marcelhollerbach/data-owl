@@ -1,11 +1,12 @@
 import json
 
-from flask import Blueprint, request, Response
+from apiflask import APIBlueprint
+from flask import request, Response
 
 from basic.annotations import login_required
 from search import SearchRequest, ParsedRequest
 
-routes = Blueprint('search', __name__)
+routes = APIBlueprint('search', __name__)
 
 
 @routes.route('/search/apply', methods=['POST'])
@@ -27,6 +28,12 @@ def search():
 @routes.route('/search/compile', methods=['POST'])
 @login_required
 def compile_search():
+    """
+    Compile a search request
+
+    Compile and verify a search request.  
+    :return:
+    """
     data = request.get_json()
 
     SearchRequest.schema().load(data)

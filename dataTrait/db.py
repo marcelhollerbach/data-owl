@@ -1,4 +1,7 @@
+import dataclasses
 import logging
+
+from dataclasses_json import dataclass_json
 
 from basic import DataTrait, DataTraitInstance
 from basic.db import get_db_connection
@@ -11,6 +14,17 @@ def gen_table_decl(trait: DataTrait) -> (str, str, str):
     attributes = ",".join(["id"] + attr_list)
     return f"dt_{str(title).lower()}_{trait.version}({attributes})", ",".join(
         ["?"] * (len(attr_list) + 1)), f"dt_{str(title).lower()}_{trait.version}"
+
+
+@dataclass_json
+@dataclasses.dataclass
+class TraitDoesNotHaveData(Exception):
+    title: str
+    message: str
+
+    def __init__(self, title: str, message: str):
+        self.title = title
+        self.message = message
 
 
 class DataTraitDBOperation():
@@ -42,8 +56,11 @@ class DataTraitDBOperation():
         cur = con.cursor()
         cur.execute(f"SELECT {id_list} FROM {self.table_decl[2]} WHERE id=?", (id,))
         all = cur.fetchone()
-        instance = dict(zip(attr_list, list(all)))
-        return DataTraitInstance(title=self.trait.title, trait_instances=instance)
+        if all is None:
+            raise TraitDoesNotHaveData("Trait not defined on ID", f"The trait {self.trait} is not defined on {id}")
+        else:
+            instance = dict(zip(attr_list, list(all)))
+            return DataTraitInstance(title=self.trait.title, trait_instances=instance)
 
     def update(self, id: str, instance: dict[str, str]):
         """

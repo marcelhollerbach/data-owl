@@ -5,7 +5,7 @@ from flask import Flask
 
 import basic.db
 from basic import DataTrait, TraitAttribute, Formats
-from dataTraitManagement import TraitAdapter
+from dataTraitManagement import TraitManagementAdapter
 
 TEST_DATABASE = './test_db.db'
 
@@ -13,7 +13,7 @@ TEST_DATABASE = './test_db.db'
 class TestTraitAdapter(TestCase):
     def setUp(self) -> None:
         basic.db.DATABASE = TEST_DATABASE
-        self.adapter = TraitAdapter()
+        self.adapter = TraitManagementAdapter()
         self.app = Flask(__name__)
         with self.app.app_context():
             self.adapter.ensure_data()

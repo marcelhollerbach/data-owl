@@ -1,8 +1,9 @@
 import dataclasses
 import json
 
+from apiflask import APIBlueprint
 from dataclasses_json import dataclass_json
-from flask import Blueprint, Response, request
+from flask import Response, request
 
 from basic import DataTraitInstance, DataTrait
 from basic.annotations import login_required
@@ -11,12 +12,19 @@ from dataTrait import adapter as trait_adapter
 from dataTrait.api import find_relevant_traits
 from dataTraitManagement.api import get_data_traits_versions
 
-routes = Blueprint('dataEntries', __name__)
+routes = APIBlueprint('dataEntries', __name__)
 
 
 @routes.route('/dataEntries', methods=['GET'])
 @login_required
 def list_all_entries():
+    """
+    List all data entries that are known and alive.
+
+    Alive here means that the id did not get invalidated yet.
+    The list contains he ID with all default fields.
+    :return:
+    """
     ids = adapter.find_all_valid_ids()
     default_trait = trait_adapter.find_data_trait("Default")
     enriched_ids = [{'id': elem_id} | default_trait.receive(elem_id).trait_instances for elem_id in ids]
@@ -26,6 +34,14 @@ def list_all_entries():
 @routes.route('/dataEntry/<string:id>', methods=['GET'])
 @login_required
 def query_entry(id: str):
+    """
+    Get the detail of a specific identifier
+
+    This will return all instances of the traits
+
+    :param id: The ID of the entry
+    :return:
+    """
     if not adapter.alive_id(id):
         return Response(status=404)
     implemented_traits = adapter.fetch_all_implementations(id)

@@ -1,6 +1,6 @@
 import logging
 
-from flask import redirect
+from flask import redirect, render_template
 
 from app import app
 from basic.annotations import login_required
@@ -22,7 +22,7 @@ def destroy_resources(exception):
 @app.route('/', methods=['GET'])
 @login_required
 def root():
-    return redirect("/static/index.html", code=302)
+    return render_template('index.html')
 
 
 with app.app_context():

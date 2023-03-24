@@ -106,6 +106,14 @@ class ParsedRequest:
         self.content = content
 
     def verify(self) -> VerificationResult:
+        """
+        Compile the parsed requests
+
+        Compile the parsed request. Each item gets verified, if there is an error the error is returned.
+        The error is annotated with the line number and item number.
+
+        :return:
+        """
         exceptions = []
         for line_index, line in enumerate(self.content):
             for item_index, item in enumerate(line):
@@ -117,6 +125,13 @@ class ParsedRequest:
 
     @staticmethod
     def compile_requests(req: SearchRequest) -> ParsedRequest:
+        """
+        Create parsed request
+
+        Create a parsed request from a given search request.
+        :param req:
+        :return:
+        """
         def compile_line(line: SearchLine) -> list[AbstractFilter]:
             return [initiate_filter(f.type, f.value) for f in line.intersection_request]
 

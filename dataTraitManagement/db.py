@@ -4,7 +4,7 @@ from basic import DataTrait, TraitAttribute
 from basic.db import get_db_connection
 
 
-class TraitAdapter():
+class TraitManagementAdapter():
     def __init__(self):
         pass
 
