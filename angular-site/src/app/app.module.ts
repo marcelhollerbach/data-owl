@@ -6,12 +6,13 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { MaterialExampleModule } from '../material.module';
 import { DataViewComponent } from './data-management/data-view.component';
-import { NewDataEntry } from "./data-management/modal/new-data-entry";
 import { WizardComponent } from './wizard/wizard.component';
 import { HttpClientModule } from '@angular/common/http';
 import { FormsModule, ReactiveFormsModule }   from '@angular/forms';
 import { TraitManagementComponent } from './trait-management/trait-management.component';
 import { NewTraitEntry } from './trait-management/modal/new-trait-entry';
+import { DataEntryDisplayComponent } from './utils/data-entry-display/data-entry-display.component';
+import { NewDataEntry } from './utils/data-entry-display/modal/new-data-entry';
 
 @NgModule({
   declarations: [
@@ -21,6 +22,7 @@ import { NewTraitEntry } from './trait-management/modal/new-trait-entry';
     NewTraitEntry,
     WizardComponent,
     TraitManagementComponent,
+    DataEntryDisplayComponent,
   ],
   imports: [
     ReactiveFormsModule,

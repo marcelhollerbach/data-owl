@@ -85,6 +85,17 @@ class DataTraitDBOperation():
         cur.execute(f"DELETE FROM {self.table_decl[2]} WHERE id=?", (id,))
         con.commit()
 
+    def usages(self) -> int:
+        """
+        Count how often
+        :param id: The id of the data Entry
+        """
+        con = get_db_connection()
+        cur = con.cursor()
+        cur.execute(f"SELECT count(id) FROM {self.table_decl[2]} GROUP BY ID")
+        result = cur.fetchone()
+        return result[0]
+
 
 class DataTraitAdapter:
     def flush_data_trait_tables(self):

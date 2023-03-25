@@ -94,8 +94,16 @@ def post_new_datatrait(name: str):
 @routes.route('/dataTraitManagement/<string:name>', methods=['DELETE'])
 @login_required
 def delete_datatrait(name: str):
-    # FIXME ensure that no data entry is referencing this trait
+    trait_info = adapter.find_id(name)
+    if trait_info is None:
+        return Response(status=400, response=BasicVersionNotFound().to_json())
+
+    trait_instance = trait_adapter.find_data_trait(name)
+    if trait_instance.usages() > 0:
+        return Response(status=400, response=TraitStillInUsage().to_json())
+
     adapter.delete_trait(name)
+
     return Response(status=202)
 
 
@@ -127,6 +135,13 @@ def put_new_datatrait():
     trait_adapter.flush_data_trait_tables()
 
     return Response(status=202)
+
+
+@dataclass_json
+@dataclasses.dataclass
+class TraitStillInUsage:
+    error: str = "Title and Version is already there"
+    message: str = "Duplicated! The title and version is already there."
 
 
 @dataclass_json

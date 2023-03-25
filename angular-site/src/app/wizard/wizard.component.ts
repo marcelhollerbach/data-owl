@@ -1,9 +1,11 @@
 import { Component } from '@angular/core';
 import { MatChipInputEvent, MatChipEditedEvent } from '@angular/material/chips';
 import { COMMA, ENTER } from '@angular/cdk/keycodes';
-import { SearchItem, SearchLine, SearchRequst, SearchService } from '../search.service';
+import { SearchItem, SearchLine, SearchRequst, SearchResult, SearchService } from '../search.service';
 import { AbstractControl, AsyncValidatorFn, FormControl, FormGroupDirective, NgForm, ValidationErrors } from '@angular/forms';
 import { Observable, map } from 'rxjs';
+import { DataSource, CollectionViewer } from '@angular/cdk/collections';
+import { EmptyDataSource } from '../utils/EmptyDataSource';
 
 class UiSearchTerm {
 
@@ -64,7 +66,9 @@ export class WizardComponent {
   addOnBlur = true;
   readonly separatorKeysCodes = [ENTER, COMMA] as const;
   search_results: string[];
-  terms = [new UiSearchTerm("type:test"), new UiSearchTerm("contains:something"), new UiSearchTerm("test")]
+  displayedColumns= ["Name", "Description"]
+  terms = [new UiSearchTerm("type:Default")]
+  dataSource: DataSource<SearchResult> = new EmptyDataSource<SearchResult>;
 
   constructor(private service: SearchService) {
     this.search_results = []
@@ -108,12 +112,9 @@ export class WizardComponent {
   }
 
   search() {
-    this.service.search(this.toSearchRequest()).subscribe(
-      (m) => {
-        this.search_results = m
-      }
-    )
+    this.dataSource = new DataSearchResult(this.toSearchRequest(), this.service)
   }
+
   childValidator(): AsyncValidatorFn {
     return (control: AbstractControl): Observable<ValidationErrors | null> => {
       console.log(control.value)
@@ -147,3 +148,16 @@ export class WizardComponent {
     };
   }
 }
+
+class DataSearchResult extends DataSource<SearchResult> {
+  constructor(private sr : SearchRequst, private service: SearchService) {
+    super();
+  }
+
+  connect(_collectionViewer: CollectionViewer): Observable<readonly SearchResult[]> {
+    return this.service.search(this.sr)
+  }
+
+  disconnect(_collectionViewer: CollectionViewer): void { }
+}
+

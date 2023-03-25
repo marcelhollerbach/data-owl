@@ -4,7 +4,7 @@ import { Observable } from 'rxjs';
 import { DataEntriesService, DataEntryExploration } from '../data-entries.service';
 import { DataSource } from '@angular/cdk/table';
 import { CollectionViewer } from '@angular/cdk/collections';
-import { NewDataEntry } from './modal/new-data-entry';
+import { EmptyDataSource } from '../utils/EmptyDataSource';
 
 
 @Component({
@@ -13,24 +13,13 @@ import { NewDataEntry } from './modal/new-data-entry';
   styleUrls: ['./data-view.component.scss']
 })
 export class DataViewComponent {
-  dataSource : DataEntryExplorationDataSource;
-  displayedColumns = ['Name', 'Description'];
+  dataSource: DataSource<DataEntryExploration> = new EmptyDataSource<DataEntryExploration>;
 
-  constructor(public create_dialog: MatDialog, public detail_dialog: MatDialog, private data_entry_service: DataEntriesService) {
-    this.dataSource = new DataEntryExplorationDataSource(this.data_entry_service);
+  constructor(private data_entry_service: DataEntriesService) {
+    this.refresh();
   }
   refresh() {
     this.dataSource = new DataEntryExplorationDataSource(this.data_entry_service);
-  }
-  openSingleCreationDialog(): void {
-    this.show_entry({ id: "" })
-  }
-  show_entry(entry: any) {
-    this.create_dialog.open(NewDataEntry, {
-      data: {
-        id: entry["id"]
-      }
-    }).afterClosed().subscribe((id) => this.refresh())
   }
 }
 

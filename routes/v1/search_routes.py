@@ -4,6 +4,7 @@ from apiflask import APIBlueprint
 from flask import request, Response
 
 from basic.annotations import login_required
+from dataTrait import adapter as trait_adapter
 from search import SearchRequest, ParsedRequest
 
 routes = APIBlueprint('search', __name__)
@@ -22,7 +23,9 @@ def search():
         return Response(status=400, response=problems.to_json())
     else:
         result = parsed_request.apply()
-        return Response(status=200, response=json.dumps(result))
+        default_trait = trait_adapter.find_data_trait("Default")
+        return Response(status=200, response=json.dumps(
+            [{'id': x} | default_trait.receive(x).trait_instances for x in result]))
 
 
 @routes.route('/search/compile', methods=['POST'])

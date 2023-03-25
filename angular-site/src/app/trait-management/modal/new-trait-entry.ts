@@ -32,7 +32,7 @@ export class NewTraitEntry implements BackendCommunicator<NewTraitEntry> {
         this.version = 0;
         this.error = BackendError.default();
         this.dialogRef = dialogRef
-        if (data.id != undefined) {
+        if (this.isUpdate()) {
             this.in_flight = true
             trait_mgt_service.find(data.id).subscribe((v) => {
                 this.title = v.title
@@ -44,6 +44,9 @@ export class NewTraitEntry implements BackendCommunicator<NewTraitEntry> {
         }
     }
 
+    isUpdate() {
+        return this.data.id != undefined;
+    }
     addDummyField() {
         this.fields.push(new Field(new DataClassField("Change-me", "", "simple_string"), true, Math.max(...this.fields.map((x) => x.id)) + 1))
     }
@@ -54,7 +57,7 @@ export class NewTraitEntry implements BackendCommunicator<NewTraitEntry> {
     }
     updateEntry() {
         this.in_flight = true
-        if (this.data.id != undefined) {
+        if (this.isUpdate()) {
             this.trait_mgt_service.post(this.data.id, new DataTrait(this.title, this.description, this.fields.map((m) => m.data))).subscribe(new BackendInteractionHandler(this));
         } else {
             this.trait_mgt_service.put(new DataTrait(this.title, this.description, this.fields.map((m) => m.data))).subscribe(new BackendInteractionHandler(this));

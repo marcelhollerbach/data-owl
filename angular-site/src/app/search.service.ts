@@ -14,6 +14,12 @@ export interface CompileResults {
   happenings: CompileResultItem[]
 }
 
+export interface SearchResult {
+  id: string,
+  name: string,
+  description: string,
+}
+
 
 export class SearchItem {
   constructor(public type:string, public value:string) {}
@@ -34,8 +40,8 @@ export class SearchService {
 
   constructor(private client: HttpClient) { }
 
-  public search(req: SearchRequst):Observable<string[]> {
-    return this.client.post<string[]>(environment.server + "v1/search/apply", req)
+  public search(req: SearchRequst):Observable<SearchResult[]> {
+    return this.client.post<SearchResult[]>(environment.server + "v1/search/apply", req)
   }
 
   public compile(req: SearchRequst):Observable<CompileResults> {
