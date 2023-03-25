@@ -13,6 +13,7 @@ import { TraitManagementComponent } from './trait-management/trait-management.co
 import { NewTraitEntry } from './trait-management/modal/new-trait-entry';
 import { DataEntryDisplayComponent } from './utils/data-entry-display/data-entry-display.component';
 import { NewDataEntry } from './utils/data-entry-display/modal/new-data-entry';
+import { SearchBarComponent } from './utils/search-bar/search-bar.component';
 
 @NgModule({
   declarations: [
@@ -23,6 +24,7 @@ import { NewDataEntry } from './utils/data-entry-display/modal/new-data-entry';
     WizardComponent,
     TraitManagementComponent,
     DataEntryDisplayComponent,
+    SearchBarComponent,
   ],
   imports: [
     ReactiveFormsModule,

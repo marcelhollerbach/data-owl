@@ -8,22 +8,47 @@
 
 .headline-bar{
     width: 80%;
-    vertical-align:top;
-    mat-form-field {
-        width: 100%;
-        height: 100%        
-    }
-    
+    vertical-align:top;   
 }
+
 .headline-button{
     width:20%;
     vertical-align:top;
     button {
         width: 100%;
         height: 100%;
-        //padding: 10px;
     }
 }
 .error-tooltip {
     white-space: break-spaces;
+}
+.mat-column-Name {
+    font-size: 20px;
+    width: 20%
+}
+
+.mat-column-Description {
+    font-size: 20px;
+    width: 80%
+}
+
+mat-row.mat-mdc-row{
+    &:hover{
+        background-color: lightgray;
+    }
+    border-bottom: black 2px;
+}
+
+.border_style {
+    th {
+        border-bottom: black 2px;
+        font-weight: bold;
+    }
+    td {
+        border-bottom: black 2px;
+    }
+}
+
+.mdc-data-table__cell {
+    border-width: 0px;
 }
