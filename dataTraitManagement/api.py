@@ -3,8 +3,7 @@ from typing import Union
 
 from dataclasses_json import dataclass_json
 
-from basic import DataTrait, TraitAttribute, Formats, DataTraitInstance
-from basic.annotations import fetch_author
+from basic import DataTrait, TraitAttribute, Formats
 from dataTraitManagement import adapter
 
 
@@ -156,22 +155,3 @@ def get_all_traits_managed(searched_name: Union[str, None]) -> dict[str, list[in
             reduction_map[trait[0]] = [trait[1]]
 
     return reduction_map
-
-
-class MetaDataHelper:
-    @staticmethod
-    def update(id: str) -> DataTraitInstance:
-        from dataTrait import adapter as trait_adapter
-        receiver = trait_adapter.find_data_trait('Meta-Data').receive(id)
-        receiver.trait_instances['Updater'] = fetch_author()
-        return receiver
-
-    @staticmethod
-    def create() -> DataTraitInstance:
-        data = {
-            'Creator': fetch_author(),
-            'Updater': fetch_author(),
-            'Invalidator': ''
-        }
-
-        return DataTraitInstance(title='Meta-Data', trait_instances=data)

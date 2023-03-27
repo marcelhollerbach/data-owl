@@ -5,7 +5,8 @@ from dataclasses_json import dataclass_json
 
 from basic import DataTrait, DataTraitInstance
 from basic.db import get_db_connection
-from dataTraitManagement.api import get_data_traits_versions, get_data_traits_for_management
+from dataTraitManagement.api import hardcoded_default, \
+    get_user_managed_data_traits_versions
 
 
 def gen_table_decl(trait: DataTrait) -> (str, str, str):
@@ -27,68 +28,68 @@ class TraitDoesNotHaveData(Exception):
         self.message = message
 
 
-class DataTraitDBOperation():
+class DataTraitDBOperation:
     def __init__(self, trait: DataTrait):
         self.trait = trait
         self.table_decl = gen_table_decl(self.trait)
 
-    def insert(self, id: str, instance: dict[str, str]):
+    def insert(self, entry_id: str, instance: dict[str, str]):
         """
         Insert a specific instance of a trait
-        :param id: The id which is reserved for this data entry
+        :param entry_id: The id which is reserved for this data entry
         :param instance: The values of the instance, not going to be validated
         """
-        values = [id] + [value for value in instance.values()]
+        values = [entry_id] + [value for value in instance.values()]
         con = get_db_connection()
         cur = con.cursor()
         cur.execute(f"INSERT INTO {self.table_decl[0]} values ({self.table_decl[1]})", values)
         con.commit()
 
-    def receive(self, id: str) -> DataTraitInstance:
+    def receive(self, entry_id: str) -> DataTraitInstance:
         """
         Get the values of this trait.
 
         Get the values of this trait for the given id. This does not validate that there is actually
         an instance of this.
-        :param id: The id of the data Entry
+        :param entry_id: The id of the data Entry
         :return: The instance of this data trait.
         """
         attr_list = [field.name for field in self.trait.fields]
         id_list = ",".join([attr.replace("-", "_") for attr in attr_list])
         con = get_db_connection()
         cur = con.cursor()
-        cur.execute(f"SELECT {id_list} FROM {self.table_decl[2]} WHERE id=?", (id,))
-        all = cur.fetchone()
-        if all is None:
-            raise TraitDoesNotHaveData("Trait not defined on ID", f"The trait {self.trait} is not defined on {id}")
+        cur.execute(f"SELECT {id_list} FROM {self.table_decl[2]} WHERE id=?", (entry_id,))
+        received_data = cur.fetchone()
+        if received_data is None:
+            raise TraitDoesNotHaveData("Trait not defined on ID",
+                                       f"The trait {self.trait} is not defined on {entry_id}")
         else:
-            instance = dict(zip(attr_list, list(all)))
+            instance = dict(zip(attr_list, list(received_data)))
             return DataTraitInstance(title=self.trait.title, trait_instances=instance)
 
-    def update(self, id: str, instance: dict[str, str]):
+    def update(self, entry_id: str, instance: dict[str, str]):
         """
         Update a specific instance of a trait
-        :param id: The id which is reserved for this data entry
+        :param entry_id: The id which is reserved for this data entry
         :param instance: The values of the instance, not going to be validated
         """
         # FIXME that is a hack
-        self.delete(id)
-        self.insert(id, instance)
+        self.delete(entry_id)
+        self.insert(entry_id, instance)
 
-    def delete(self, id: str):
+    def delete(self, entry_id: str):
         """
         Delete this trait instance for the given id.
-        :param id: The id of the data Entry
+        :param entry_id: The id of the data Entry
         """
         con = get_db_connection()
         cur = con.cursor()
-        cur.execute(f"DELETE FROM {self.table_decl[2]} WHERE id=?", (id,))
+        cur.execute(f"DELETE FROM {self.table_decl[2]} WHERE id=?", (entry_id,))
         con.commit()
 
     def usages(self) -> int:
         """
         Count how often
-        :param id: The id of the data Entry
         """
         con = get_db_connection()
         cur = con.cursor()
@@ -98,31 +99,22 @@ class DataTraitDBOperation():
 
 
 class DataTraitAdapter:
-    def flush_data_trait_tables(self):
+    @staticmethod
+    def flush_data_trait_tables():
         """
         Ensure that all tables in the DB exists as it is described in the meta model
         """
         con = get_db_connection()
         cur = con.cursor()
-        for value in get_data_traits_versions().values():
+        for value in get_user_managed_data_traits_versions():
             table_decl = gen_table_decl(value)
             logging.debug("Creating table " + table_decl[0])
             cur.execute(f"CREATE TABLE IF NOT EXISTS {table_decl[0]}")
         con.commit()
 
-    def find_data_trait(self, title: str, version: int | None = None) -> DataTraitDBOperation:
-        """
-        Receive the data trait db connection for a given data trait.
-        Does not validate the existance of the trait.
+    @staticmethod
+    def to_db_traits(dt: DataTrait) -> DataTraitDBOperation:
+        return DataTraitDBOperation(dt)
 
-        :param version:
-        :param title: The title of the trait If None, the newest is taken
-        :return: The db object for the data trait
-        """
-        trait = get_data_traits_for_management(title)[0]
-        index = 0
-        if version is not None:
-            for i, trait_version in enumerate(trait.versions):
-                if trait_version.version == version:
-                    index = i
-        return DataTraitDBOperation(trait.versions[index])
+    DEFAULT = to_db_traits(hardcoded_default[0])
+    META_DATA = to_db_traits(hardcoded_default[1])

@@ -1,5 +1,6 @@
 from dataEntries import adapter
-from dataTrait import adapter as dt_adapter
+from dataEntries.api import capture_state
+from dataTrait.db import DataTraitAdapter
 from search.api import AbstractFilter, VerificationException
 
 
@@ -19,12 +20,12 @@ class ContainsFilter(AbstractFilter):
 
     def apply(self, previous_state: list[str]) -> list[str]:
         result = []
-        for id in previous_state:
-            implementations = set([impl[1] for impl in adapter.fetch_all_implementations(id)])
-            for implementation in implementations:
-                impl = dt_adapter.find_data_trait(implementation)
-                instance = impl.receive(id)
+        for entry_id in previous_state:
+            implemented_traits, known_trait_defs = capture_state(entry_id)
+            for (title, version) in implemented_traits.items():
+                impl = DataTraitAdapter.to_db_traits(known_trait_defs[title])
+                instance = impl.receive(entry_id)
                 for v in instance.trait_instances.values():
                     if self.value in v:
-                        result.append(id)
+                        result.append(entry_id)
         return result

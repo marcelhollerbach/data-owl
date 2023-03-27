@@ -62,7 +62,7 @@ def fetch_author() -> str:
 
 def fetch_username():
     current_user = session.get("user", None)
-    if current_user == None:
+    if current_user is None:
         return "Not-Logged-In"
     else:
         return current_user.get('userinfo').get('name')

@@ -132,6 +132,7 @@ class ParsedRequest:
         :param req:
         :return:
         """
+
         def compile_line(line: SearchLine) -> list[AbstractFilter]:
             return [initiate_filter(f.type, f.value) for f in line.intersection_request]
 
@@ -172,9 +173,9 @@ class FailingFilter(AbstractFilter):
     filter_name = "FailingFilter"
     type: str
 
-    def __init__(self, value: str, type: str):
+    def __init__(self, value: str, trait_type: str):
         super().__init__(value)
-        self.type = type
+        self.type = trait_type
 
     def verify(self):
         raise VerificationException(f"Filter {self.type} is not known",

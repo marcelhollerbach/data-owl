@@ -9,8 +9,8 @@ logging.root.setLevel(logging.DEBUG)
 
 
 @app.teardown_appcontext
-def destroy_resources(exception):
-    close_connection(exception)
+def destroy_resources():
+    close_connection()
 
 
 init_routes(app)

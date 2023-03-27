@@ -6,7 +6,7 @@ from flask import g
 DATABASE = './test_db.db'
 
 
-def close_connection(exception):
+def close_connection():
     db = getattr(g, '_database', None)
     if db is not None:
         db.close()

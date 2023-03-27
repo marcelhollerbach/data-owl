@@ -7,7 +7,7 @@ from flask import jsonify, request, Response
 
 from basic import DataTrait, TraitAttribute
 from basic.annotations import login_required, fetch_author
-from dataTrait import adapter as trait_adapter
+from dataTrait.db import DataTraitAdapter
 from dataTraitManagement.api import get_data_traits_for_management, \
     get_user_managed_data_traits_versions, adapter
 
@@ -82,7 +82,7 @@ def post_new_datatrait(name: str):
         trait_update.version = trait_info[1] + 1
         adapter.create_trait(trait_update)
 
-    trait_adapter.flush_data_trait_tables()
+    DataTraitAdapter.flush_data_trait_tables()
 
     return Response(status=202)
 
@@ -94,9 +94,11 @@ def delete_datatrait(name: str):
     if trait_info is None:
         return Response(status=400, response=BasicVersionNotFound().to_json())
 
-    trait_instance = trait_adapter.find_data_trait(name)
-    if trait_instance.usages() > 0:
-        return Response(status=400, response=TraitStillInUsage().to_json())
+    captured_state = get_data_traits_for_management(name)[0]
+    for trait_version in captured_state.versions:
+        trait_instance = DataTraitAdapter.to_db_traits(trait_version)
+        if trait_instance.usages() > 0:
+            return Response(status=400, response=TraitStillInUsage().to_json())
 
     adapter.delete_trait(name)
 
@@ -126,7 +128,7 @@ def put_new_datatrait():
         return Response(status=400, response=field_name_error.to_json())
 
     adapter.create_trait(trait, trait.author)
-    trait_adapter.flush_data_trait_tables()
+    DataTraitAdapter.flush_data_trait_tables()
 
     return Response(status=202)
 

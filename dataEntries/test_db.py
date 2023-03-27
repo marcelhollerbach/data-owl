@@ -13,6 +13,7 @@ trait = DataTrait(
     title="testTrait",
     description="This data is a tester.",
     version=12,
+    author='asdf',
     fields=[
         TraitAttribute(name="Currency", description="The currency this price is measured in",
                        format=Formats.SIMPLE_STRING),
@@ -35,20 +36,20 @@ class TestDataEntriesAdapter(TestCase):
     def test_exists_id(self):
         with self.app.app_context():
             self.assertFalse(self.adapter.exists_id('aaaa'))
-            id = self.adapter.register_id()
-            self.assertTrue(self.adapter.exists_id(id))
-            self.adapter.invalidate_id(id)
-            self.assertTrue(self.adapter.exists_id(id))
-            self.adapter.delete_id(id)
+            entry_id = self.adapter.register_id()
+            self.assertTrue(self.adapter.exists_id(entry_id))
+            self.adapter.invalidate_id(entry_id)
+            self.assertTrue(self.adapter.exists_id(entry_id))
+            self.adapter.delete_id(entry_id)
 
     def test_alive_id(self):
         with self.app.app_context():
             self.assertFalse(self.adapter.alive_id('aaaa'))
-            id = self.adapter.register_id()
-            self.assertTrue(self.adapter.alive_id(id))
-            self.adapter.invalidate_id(id)
-            self.assertFalse(self.adapter.alive_id(id))
-            self.adapter.delete_id(id)
+            entry_id = self.adapter.register_id()
+            self.assertTrue(self.adapter.alive_id(entry_id))
+            self.adapter.invalidate_id(entry_id)
+            self.assertFalse(self.adapter.alive_id(entry_id))
+            self.adapter.delete_id(entry_id)
 
     def test_find_all_valid_ids(self):
         with self.app.app_context():

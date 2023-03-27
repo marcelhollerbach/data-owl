@@ -5,7 +5,7 @@ from dataclasses_json import dataclass_json
 
 from basic import DataTraitInstance, DataTrait
 from dataEntries import adapter
-from dataTraitManagement.api import get_data_traits_versions, get_data_traits_for_management
+from dataTraitManagement.api import get_data_traits_for_management
 
 
 @dataclass_json
@@ -13,9 +13,6 @@ from dataTraitManagement.api import get_data_traits_versions, get_data_traits_fo
 class DataEntry:
     id: str
     instances: list[DataTraitInstance]
-
-    def validate(self) -> dict[str, DataTrait]:
-        return validate_trait_instance(self.instances)
 
 
 class TraitNotKnownError(Exception):
@@ -37,11 +34,9 @@ class WorkflowDataEntry:
         self.payload = payload
 
         # Traits currently in the database
-        self.implemented_traits = dict(
-            [(trait_name, version) for (version, trait_name) in adapter.fetch_all_implementations(self.payload.id)])
-        self.known_trait_defs = dict([(x.title, x) for x in get_data_traits_for_management()])
+        self.implemented_traits, self.known_trait_defs = capture_state(self.payload.id)
 
-    def verifyTraitExistance(self):
+    def verify_trait_existence(self):
         for instance in self.payload.instances:
             if instance.title not in self.known_trait_defs:
                 raise TraitNotKnownError()
@@ -83,10 +78,8 @@ class WorkflowDataEntry:
             trait.validate(instance)
 
 
-def validate_trait_instance(data_trait_instances: list[DataTraitInstance]):
-    traits = get_data_traits_versions()
-    result = {}
-    for instance in data_trait_instances:
-        traits[instance.title].validate(instance)
-        result[instance.title] = traits[instance.title]
-    return result
+def capture_state(entry_id: str):
+    implemented_traits = dict(
+        [(trait_name, version) for (version, trait_name) in adapter.fetch_all_implementations(entry_id)])
+    known_trait_defs = dict([(x.title, x) for x in get_data_traits_for_management()])
+    return implemented_traits, known_trait_defs

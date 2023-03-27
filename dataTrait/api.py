@@ -1,12 +1,21 @@
-from dataTraitManagement.api import get_data_traits_versions
+from basic import DataTraitInstance
+from basic.annotations import fetch_author
+from dataTrait.db import DataTraitAdapter
 
 
-def find_relevant_traits(implemented_traits: list[str]) -> list[str]:
-    relevant_traits = []
-    traits = get_data_traits_versions()
-    for impl in implemented_traits:
-        version = impl[0]
-        name = impl[1]
-        if traits[name].version == version:
-            relevant_traits.append(name)
-    return relevant_traits
+class MetaDataHelper:
+    @staticmethod
+    def update(entry_id: str) -> DataTraitInstance:
+        receiver = DataTraitAdapter.META_DATA.receive(entry_id)
+        receiver.trait_instances['Updater'] = fetch_author()
+        return receiver
+
+    @staticmethod
+    def create() -> DataTraitInstance:
+        data = {
+            'Creator': fetch_author(),
+            'Updater': fetch_author(),
+            'Invalidator': ''
+        }
+
+        return DataTraitInstance(title='Meta-Data', trait_instances=data)
