@@ -18,6 +18,9 @@ class DataTraitManagement:
     enabled_per_default: bool
     versions: [DataTrait]
 
+    def search_version(self, v: int) -> DataTrait:
+        return [x for x in self.versions if x.version == v][0]
+
 
 hardcoded_default = [
     DataTrait(

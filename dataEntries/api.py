@@ -5,8 +5,7 @@ from dataclasses_json import dataclass_json
 
 from basic import DataTraitInstance, DataTrait
 from dataEntries import adapter
-from dataTraitManagement import adapter as dtm_adapter
-from dataTraitManagement.api import get_data_trait, get_data_traits_versions, get_data_traits_for_management
+from dataTraitManagement.api import get_data_traits_versions, get_data_traits_for_management
 
 
 @dataclass_json
@@ -53,8 +52,8 @@ class WorkflowDataEntry:
                 # new trait
                 self.user_passed_traits[instance.title] = (self.known_trait_defs[instance.title].versions[0], instance)
             else:
-                trait_versioned_def = get_data_trait(name=instance.title,
-                                                     version=self.implemented_traits[instance.title])
+                trait_versioned_def = self.known_trait_defs[instance.title].search_version(
+                    self.implemented_traits[instance.title])
                 try:
                     trait_versioned_def.validate(instance)
                     self.user_passed_traits[instance.title] = (trait_versioned_def, instance)
@@ -69,14 +68,14 @@ class WorkflowDataEntry:
                 self.job_new_inserts += [(dt, di)]
             elif dt.version != self.implemented_traits[title]:
                 # there is a new version, unregister the old one
-                self.job_delete += [(dtm_adapter.get_trait(dt.title, self.implemented_traits[title]))]
+                self.job_delete += [(self.known_trait_defs[dt.title].search_version(self.implemented_traits[title]))]
                 # register the new version
                 self.job_new_inserts += [(dt, di)]
             else:
                 self.job_update += [(dt, di)]
         for instance in self.implemented_traits:
             if instance not in self.user_passed_traits:
-                self.job_delete += [(dtm_adapter.get_trait(instance, self.implemented_traits[instance]))]
+                self.job_delete += [(self.known_trait_defs[instance].search_version(self.implemented_traits[instance]))]
 
     def verify_trait_instances(self):
         # validate update_traits and new_traits

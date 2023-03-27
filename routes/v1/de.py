@@ -95,6 +95,8 @@ def update_entry(entry_id: str):
 
     workflow.fill_joblists()
 
+    commit_workflow(workflow)
+
     return Response(status=202, response=DataEntryPostReply(id=entry_id).to_json())
 
 
