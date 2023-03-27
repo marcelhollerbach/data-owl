@@ -10,7 +10,7 @@ from basic.annotations import login_required
 from dataEntries import adapter
 from dataTrait import adapter as trait_adapter
 from dataTrait.api import find_relevant_traits
-from dataTraitManagement.api import get_data_traits_versions
+from dataTraitManagement.api import get_data_traits_versions, MetaDataHelper
 
 routes = APIBlueprint('dataEntries', __name__)
 
@@ -60,12 +60,13 @@ def update_entry(id: str):
         return Response(status=404)
 
     traits = get_data_traits_versions()
-
     data_entry_dict = request.get_json()
 
     DataEntry.schema().load(data_entry_dict)
     entry: DataEntry = DataEntry.from_dict(data_entry_dict)
-    used_data_traits = entry.validate()
+
+    if entry.id != id:
+        return Response(status=400, response=AmbigiousIdFields().to_json())
 
     # fetch all implemented traits
     implemented_traits = adapter.fetch_all_implementations(id)
@@ -74,17 +75,33 @@ def update_entry(id: str):
     # helper lists
     defined_names = [instance.title for instance in entry.instances]
     missing_traits = [trait for trait in known_traits if trait not in defined_names]
+    missing_traits.remove('Meta-Data')
 
     if 'Default' not in defined_names:
         return Response(status=400, response=DefaultInstanceMissing().to_json())
 
+    if 'Meta-Data' in defined_names:
+        return Response(status=400, response=MetaDataManagedBySystem().to_json())
+
+    # Inject meta data for this entry
+    entry.instances.append(MetaDataHelper.update(entry.id))
+    used_data_traits = entry.validate()
+
     # calculate list of traits and how to work with them
-    update_traits = [instance for instance in entry.instances if instance.title in known_traits]
+    update_traits = [instance for instance in entry.instances if
+                     instance.title in known_traits]
     new_traits = [instance for instance in entry.instances if instance.title not in known_traits]
     delete_traits = [instance[1] for instance in implemented_traits if instance[1] in missing_traits]
 
+    assert 'Meta-Data' in [u.title for u in update_traits]
+    assert 'Meta-Data' not in [u.title for u in new_traits]
+    assert 'Meta-Data' not in delete_traits
+
     # update all existing trait instances
     for instance in update_traits:
+        # FIXME handling versioning ...
+        # FIXME if these settings here are equal to whatever is stored right now - don't do anything
+        # FIXME if these settings here are NOT equal: Update and assume newest version
         trait_db = trait_adapter.find_data_trait(instance.title)
         trait_db.update(id, instance.trait_instances)
 
@@ -125,10 +142,14 @@ def put_new_dc():
 
     DataEntry.schema().load(data_entry_dict)
     entry: DataEntry = DataEntry.from_dict(data_entry_dict)
-    used_data_traits = entry.validate()
 
     if len([x.title for x in entry.instances if x.title == 'Default']) != 1:
         return Response(status=400, response=DefaultInstanceMissing().to_json())
+
+    # Inject meta data
+    entry.instances.append(MetaDataHelper.create())
+
+    used_data_traits = entry.validate()
 
     registered_id = adapter.register_id()
 
@@ -170,6 +191,20 @@ class DataEntryPostReply:
 
 @dataclass_json
 @dataclasses.dataclass
+class AmbigiousIdFields:
+    error: str = "ID in path is not equal to ID in payload"
+    message: str = "The ID in the payload must be equal to the ID in the path"
+
+
+@dataclass_json
+@dataclasses.dataclass
 class DefaultInstanceMissing:
     error: str = "DataEntry could not be created or updated"
     message: str = "The Default instance was not set. But it must."
+
+
+@dataclass_json
+@dataclasses.dataclass
+class MetaDataManagedBySystem:
+    error: str = "Meta-Data cannot be set"
+    message: str = "The Meta-Data instance is set by the system, not by a caller."

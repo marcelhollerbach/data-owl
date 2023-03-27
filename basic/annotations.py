@@ -2,7 +2,7 @@ import logging
 import os
 from functools import wraps
 
-from flask import session, redirect, url_for, request, Response
+from flask import session, redirect, url_for, request, Response, has_request_context
 
 NORMAL = "NORMAL"
 LOCALDEV = "LOCALDEV"
@@ -53,3 +53,31 @@ def login_required(f):
         return f(*args, **kwargs)
 
     return decorated_function
+
+
+def fetch_author() -> str:
+    current_user = session["user"]
+    return current_user.get('userinfo').get('email')
+
+
+def fetch_username():
+    current_user = session.get("user", None)
+    if current_user == None:
+        return "Not-Logged-In"
+    else:
+        return current_user.get('userinfo').get('name')
+
+
+class RequestFormatter(logging.Formatter):
+    def format(self, record):
+        if has_request_context():
+            record.user = fetch_username()
+        else:
+            record.user = None
+
+        return super().format(record)
+
+
+formatter = RequestFormatter(
+    '%(asctime)s %(levelname)s %(name)s %(threadName)s [%(user)] : %(message)s'
+)

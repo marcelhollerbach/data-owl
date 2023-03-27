@@ -2,7 +2,6 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from 'src/environments/environment';
-import { DataClass } from './data-trait.service';
 
 export class DataClassField {
   constructor(public name: string, public description: string, public format: string) { }
@@ -15,10 +14,26 @@ export class DataTrait {
   }
 }
 
+export interface DataClassField {
+  name: string,
+  description: string,
+  format: string
+}
+
+export interface DataClass {
+   title : string,
+   version: string
+   description: string,
+   fields: DataClassField[]
+}
+
+
 export interface DataTraitClass {
   title: string,
   description: string,
   immutable: boolean
+  readonly: boolean
+  enabled_per_default: boolean
   versions: DataClass[]
 }
 
@@ -30,10 +45,15 @@ export interface DataTraitPostReply {
   providedIn: 'root'
 })
 export class DataTraitManagementService {
-  constructor(private client: HttpClient) { }
+
+  private _findall: Observable<DataTraitClass[]>;
+
+  constructor(private client: HttpClient) { 
+    this._findall = this.client.get<DataTraitClass[]>(environment.server + "v1/dataTraitManagement/")
+  }
 
   public findAll(): Observable<DataTraitClass[]> {
-    return this.client.get<DataTraitClass[]>(environment.server + "v1/dataTraitManagement/")
+    return this._findall;
   }
   public put(entry: DataTrait): Observable<DataTraitPostReply> {
     return this.client.put<DataTraitPostReply>(environment.server + "v1/dataTraitManagement/", entry)

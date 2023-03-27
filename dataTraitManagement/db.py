@@ -12,15 +12,16 @@ class TraitManagementAdapter():
         con = get_db_connection()
         cur = con.cursor()
         cur.execute(
-            "CREATE TABLE IF NOT EXISTS data_trait(id integer primary key autoincrement, title, description, version)")
+            "CREATE TABLE IF NOT EXISTS data_trait"
+            "(id integer primary key autoincrement, title, description, version, author)")
         cur.execute("CREATE TABLE IF NOT EXISTS data_trait_attribute(id, name, description, format)")
         con.commit()
 
-    def create_trait(self, trait: DataTrait):
+    def create_trait(self, trait: DataTrait, author: str):
         con = get_db_connection()
         cur = con.cursor()
-        cur.execute("INSERT INTO data_trait(title, description, version) VALUES (?, ?, ?)",
-                    (trait.title, trait.description, trait.version))
+        cur.execute("INSERT INTO data_trait(title, description, version, author) VALUES (?, ?, ?, ?)",
+                    (trait.title, trait.description, trait.version, author))
         id = cur.lastrowid
         for field in trait.fields:
             cur.execute("INSERT INTO data_trait_attribute(id, name, description, format) VALUES (?, ?, ?, ?)",
@@ -70,14 +71,15 @@ class TraitManagementAdapter():
         con = get_db_connection()
         cur = con.cursor()
         id = self.find_id(title, version)
-        cur.execute("SELECT description FROM data_trait WHERE id=?", (id[0],))
+        cur.execute("SELECT description, author FROM data_trait WHERE id=?", (id[0],))
         data_trait_result = cur.fetchone()
         cur.execute("SELECT name, description, format FROM data_trait_attribute WHERE id=?", (id[0],))
         data_trait_attributes = cur.fetchall()
         fields = [TraitAttribute(name=attribute[0], description=attribute[1], format=attribute[2]) for attribute in
                   data_trait_attributes]
 
-        return DataTrait(title=title, description=data_trait_result[0], version=version, fields=fields)
+        return DataTrait(title=title, description=data_trait_result[0], author=data_trait_result[1], version=version,
+                         fields=fields)
 
     def update_description(self, trait: DataTrait):
         con = get_db_connection()
@@ -88,4 +90,3 @@ class TraitManagementAdapter():
         cur.execute("UPDATE data_trait SET description = ? WHERE title = ? and version = ?",
                     (trait.description, trait.title, int(version[0])))
         con.commit()
-

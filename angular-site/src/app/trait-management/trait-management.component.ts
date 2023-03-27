@@ -2,9 +2,7 @@ import { DataSource, CollectionViewer } from '@angular/cdk/collections';
 import { Component } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Observable } from 'rxjs';
-import { DataEntriesService, DataEntryExploration } from '../data-entries.service';
 import { DataTraitClass, DataTraitManagementService } from '../data-trait-management.service';
-import { DataClass, DataTraitService } from '../data-trait.service';
 import { NewTraitEntry } from './modal/new-trait-entry';
 
 @Component({

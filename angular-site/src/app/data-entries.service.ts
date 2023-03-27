@@ -27,9 +27,12 @@ export interface DataEntryPostReply {
   providedIn: 'root'
 })
 export class DataEntriesService {
-  constructor(private client: HttpClient) { }
+  private _findall: Observable<DataEntryExploration[]>; 
+  constructor(private client: HttpClient) {
+    this._findall = this.client.get<DataEntryExploration[]>(environment.server + "v1/dataEntries")
+   }
   public findAll(): Observable<DataEntryExploration[]> {
-    return this.client.get<DataEntryExploration[]>(environment.server + "v1/dataEntries")
+    return this._findall
   }
   public put(entry: DataEntry): Observable<DataEntryPostReply> {
     return this.client.put<DataEntryPostReply>(environment.server + "v1/dataEntry", entry)

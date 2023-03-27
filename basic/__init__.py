@@ -42,6 +42,7 @@ class DataTrait:
     """
     title: str
     description: str
+    author: str
     fields: list[TraitAttribute]
     version: int
 

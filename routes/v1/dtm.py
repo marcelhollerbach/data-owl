@@ -6,18 +6,12 @@ from dataclasses_json import dataclass_json
 from flask import jsonify, request, Response
 
 from basic import DataTrait, TraitAttribute
-from basic.annotations import login_required
+from basic.annotations import login_required, fetch_author
 from dataTrait import adapter as trait_adapter
-from dataTraitManagement.api import get_data_traits_versions, get_data_traits_for_management, \
+from dataTraitManagement.api import get_data_traits_for_management, \
     get_user_managed_data_traits_versions, adapter
 
 routes = APIBlueprint('dataTraitManagement', __name__)
-
-
-@routes.route('/dataTrait/', methods=['GET'])
-@login_required
-def list_all_dcs():
-    return jsonify(list(get_data_traits_versions().values()))
 
 
 @routes.route('/dataTraitManagement/', methods=['GET'])
@@ -72,6 +66,8 @@ def post_new_datatrait(name: str):
     if field_name_error is not None:
         return Response(status=400, response=field_name_error.to_json())
 
+    trait_update.author = fetch_author()
+
     trait_instance = adapter.get_trait(name, trait_info[1])
     if trait_instance.description != trait_update.description:
         adapter.update_description(trait_update)
@@ -119,17 +115,15 @@ def put_new_datatrait():
     if name_error is not None:
         return Response(status=400, response=name_error.to_json())
 
-    if trait.version != 0:
-        error = NameInvalid()
-        error.message = "Version must be 0"
-        return Response(status=400, response=error.to_json())
-
     if adapter.find_id(trait.title) is not None:
         return Response(status=400, response=DuplicatedTitleVersion().to_json())
 
     field_name_error = find_field_name_error(trait)
     if field_name_error is not None:
         return Response(status=400, response=field_name_error.to_json())
+
+    trait.version = 0
+    trait.author = fetch_author()
 
     adapter.create_trait(trait)
     trait_adapter.flush_data_trait_tables()
