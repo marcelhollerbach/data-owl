@@ -8,8 +8,9 @@ from flask import jsonify, request, Response
 from basic import DataTrait, TraitAttribute
 from basic.annotations import login_required, fetch_author
 from dataTrait.db import DataTraitAdapter
+from dataTraitManagement import TraitManagementAdapter
 from dataTraitManagement.api import get_data_traits_for_management, \
-    get_user_managed_data_traits_versions, adapter
+    get_user_managed_data_traits_versions
 
 routes = APIBlueprint('dataTraitManagement', __name__)
 
@@ -51,6 +52,7 @@ def calculate_lookup_dict(trait_instance: DataTrait) -> Dict[str, TraitAttribute
 @login_required
 def post_new_datatrait(name: str):
     data = request.get_json()
+    data["author"] = fetch_author()
 
     DataTrait.schema().load(data)
     trait_update: DataTrait = DataTrait.from_dict(data)
@@ -80,7 +82,7 @@ def post_new_datatrait(name: str):
         TraitManagementAdapter.update_trait_fields(trait_update)
     else:
         trait_update.version = trait_info[1] + 1
-        TraitManagementAdapter.create_trait(trait_update)
+        TraitManagementAdapter.create_trait(trait_update, fetch_author())
 
     DataTraitAdapter.flush_data_trait_tables()
 
@@ -136,8 +138,8 @@ def put_new_datatrait():
 @dataclass_json
 @dataclasses.dataclass
 class TraitStillInUsage:
-    error: str = "Title and Version is already there"
-    message: str = "Duplicated! The title and version is already there."
+    error: str = "Trait is still in use!"
+    message: str = "This trait is still being used!"
 
 
 @dataclass_json

@@ -9,7 +9,7 @@ logging.root.setLevel(logging.DEBUG)
 
 
 @app.teardown_appcontext
-def destroy_resources():
+def destroy_resources(_):
     close_connection()
 
 

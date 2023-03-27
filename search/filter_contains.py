@@ -1,4 +1,4 @@
-from dataEntries import adapter
+from dataEntries import DataEntriesAdapter
 from dataEntries.api import capture_state
 from dataTrait.db import DataTraitAdapter
 from search.api import AbstractFilter, VerificationException
@@ -15,7 +15,7 @@ class ContainsFilter(AbstractFilter):
             raise VerificationException("Only alphanumberical searches are allowed")
 
     def apply_base(self) -> list[str]:
-        all_ids = TraitManagementAdapter.find_all_valid_ids()
+        all_ids = DataEntriesAdapter.find_all_valid_ids()
         return self.apply(all_ids)
 
     def apply(self, previous_state: list[str]) -> list[str]:

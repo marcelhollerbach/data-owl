@@ -6,7 +6,7 @@ from dataclasses_json import dataclass_json
 from basic import DataTrait, DataTraitInstance
 from basic.db import get_db_connection
 from dataTraitManagement.api import hardcoded_default, \
-    get_user_managed_data_traits_versions
+    get_data_traits_versions
 
 
 def gen_table_decl(trait: DataTrait) -> (str, str, str):
@@ -54,6 +54,8 @@ class DataTraitDBOperation:
         :param entry_id: The id of the data Entry
         :return: The instance of this data trait.
         """
+        if len(self.trait.fields) == 0:
+            return DataTraitInstance(title=self.trait.title, trait_instances={})
         attr_list = [field.name for field in self.trait.fields]
         id_list = ",".join([attr.replace("-", "_") for attr in attr_list])
         con = get_db_connection()
@@ -95,7 +97,10 @@ class DataTraitDBOperation:
         cur = con.cursor()
         cur.execute(f"SELECT count(id) FROM {self.table_decl[2]} GROUP BY ID")
         result = cur.fetchone()
-        return result[0]
+        if result is None:
+            return 0
+        else:
+            return result[0]
 
 
 class DataTraitAdapter:
@@ -106,7 +111,7 @@ class DataTraitAdapter:
         """
         con = get_db_connection()
         cur = con.cursor()
-        for value in get_user_managed_data_traits_versions():
+        for title, value in get_data_traits_versions().items():
             table_decl = gen_table_decl(value)
             logging.debug("Creating table " + table_decl[0])
             cur.execute(f"CREATE TABLE IF NOT EXISTS {table_decl[0]}")

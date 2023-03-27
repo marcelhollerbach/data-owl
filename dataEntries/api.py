@@ -4,7 +4,8 @@ from typing import Dict, Tuple
 from dataclasses_json import dataclass_json
 
 from basic import DataTraitInstance, DataTrait
-from dataTraitManagement.api import get_data_traits_for_management
+from dataEntries import DataEntriesAdapter
+from dataTraitManagement.api import get_data_traits_for_management, DataTraitManagement
 
 
 @dataclass_json
@@ -62,14 +63,16 @@ class WorkflowDataEntry:
                 self.job_new_inserts += [(dt, di)]
             elif dt.version != self.implemented_traits[title]:
                 # there is a new version, unregister the old one
-                self.job_delete += [(self.known_trait_defs[dt.title].search_version(self.implemented_traits[title]))]
+                self.job_delete += [
+                    (self.known_trait_defs[dt.title].search_version(self.implemented_traits[title]))]
                 # register the new version
                 self.job_new_inserts += [(dt, di)]
             else:
                 self.job_update += [(dt, di)]
         for instance in self.implemented_traits:
             if instance not in self.user_passed_traits:
-                self.job_delete += [(self.known_trait_defs[instance].search_version(self.implemented_traits[instance]))]
+                self.job_delete += [
+                    (self.known_trait_defs[instance].search_version(self.implemented_traits[instance]))]
 
     def verify_trait_instances(self):
         # validate update_traits and new_traits
@@ -77,8 +80,8 @@ class WorkflowDataEntry:
             trait.validate(instance)
 
 
-def capture_state(entry_id: str):
+def capture_state(entry_id: str) -> Tuple[Dict[str, int], Dict[str, DataTraitManagement]]:
     implemented_traits = dict(
-        [(trait_name, version) for (version, trait_name) in TraitManagementAdapter.fetch_all_implementations(entry_id)])
+        [(trait_name, int(version)) for (version, trait_name) in DataEntriesAdapter.fetch_all_implementations(entry_id)])
     known_trait_defs = dict([(x.title, x) for x in get_data_traits_for_management()])
     return implemented_traits, known_trait_defs

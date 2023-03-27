@@ -1,4 +1,4 @@
-from dataEntries import adapter
+from dataEntries import DataEntriesAdapter
 from dataTraitManagement.api import get_data_traits_versions
 from search.api import AbstractFilter, VerificationException
 
@@ -17,7 +17,7 @@ class TypeFilter(AbstractFilter):
 
     def apply_base(self) -> list[str]:
         traits = get_data_traits_versions()
-        return TraitManagementAdapter.fetch_all_implementors(traits[self.value])
+        return DataEntriesAdapter.fetch_all_implementors(traits[self.value])
 
     def apply(self, previous_state: list[str]) -> list[str]:
         result = self.apply_base()
