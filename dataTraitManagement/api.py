@@ -4,7 +4,7 @@ from typing import Union
 from dataclasses_json import dataclass_json
 
 from basic import DataTrait, TraitAttribute, Formats
-from dataTraitManagement import adapter
+from dataTraitManagement import TraitManagementAdapter
 
 
 @dataclass_json
@@ -74,7 +74,7 @@ def get_data_trait(name: str, version: int) -> DataTrait:
     for trait_def in hardcoded_default:
         if trait_def.title == name and trait_def.version == version:
             return trait_def
-    return adapter.get_trait(name, version)
+    return TraitManagementAdapter.get_trait(name, version)
 
 
 def get_data_traits_versions(searched_name: Union[str, None] = None) -> dict[str, DataTrait]:
@@ -100,7 +100,7 @@ def get_user_managed_data_traits_versions(searched_name: Union[str, None] = None
     """
     managed_traits = get_all_traits_managed(searched_name)
     reduction_map = dict((k, max(v)) for k, v in managed_traits.items())
-    return [adapter.get_trait(title, version) for (title, version) in reduction_map.items()]
+    return [TraitManagementAdapter.get_trait(title, version) for (title, version) in reduction_map.items()]
 
 
 def get_data_traits_for_management(searched_name: Union[str, None] = None) -> list[DataTraitManagement]:
@@ -119,7 +119,7 @@ def get_data_traits_for_management(searched_name: Union[str, None] = None) -> li
         :param versions: The versions that got defined
         :return: The object
         """
-        instances = [adapter.get_trait(title, version) for version in versions]
+        instances = [TraitManagementAdapter.get_trait(title, version) for version in versions]
         instances.sort(key=lambda x: x.version, reverse=True)
         return DataTraitManagement(title=title, description=instances[-1].description, immutable=False,
                                    versions=instances, enabled_per_default=False, readonly=False)
@@ -145,7 +145,7 @@ def get_all_traits_managed(searched_name: Union[str, None]) -> dict[str, list[in
         else:
             return True
 
-    traits = [x for x in adapter.get_all_traits() if accepts(x)]
+    traits = [x for x in TraitManagementAdapter.get_all_traits() if accepts(x)]
     reduction_map: dict[str, list[int]] = {}
     for trait in traits:
         if trait[0] in reduction_map:

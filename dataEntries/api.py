@@ -4,7 +4,6 @@ from typing import Dict, Tuple
 from dataclasses_json import dataclass_json
 
 from basic import DataTraitInstance, DataTrait
-from dataEntries import adapter
 from dataTraitManagement.api import get_data_traits_for_management
 
 
@@ -80,6 +79,6 @@ class WorkflowDataEntry:
 
 def capture_state(entry_id: str):
     implemented_traits = dict(
-        [(trait_name, version) for (version, trait_name) in adapter.fetch_all_implementations(entry_id)])
+        [(trait_name, version) for (version, trait_name) in TraitManagementAdapter.fetch_all_implementations(entry_id)])
     known_trait_defs = dict([(x.title, x) for x in get_data_traits_for_management()])
     return implemented_traits, known_trait_defs

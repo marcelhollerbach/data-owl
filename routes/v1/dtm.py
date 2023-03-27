@@ -58,7 +58,7 @@ def post_new_datatrait(name: str):
     if name != trait_update.title:
         return Response(status=400, response=TitleImmutable().to_json())
 
-    trait_info = adapter.find_id(trait_update.title)
+    trait_info = TraitManagementAdapter.find_id(trait_update.title)
     if trait_info is None:
         return Response(status=400, response=BasicVersionNotFound().to_json())
 
@@ -68,19 +68,19 @@ def post_new_datatrait(name: str):
 
     trait_update.author = fetch_author()
 
-    trait_instance = adapter.get_trait(name, trait_info[1])
+    trait_instance = TraitManagementAdapter.get_trait(name, trait_info[1])
     if trait_instance.description != trait_update.description:
-        adapter.update_description(trait_update)
+        TraitManagementAdapter.update_description(trait_update)
 
     original_fields = calculate_lookup_dict(trait_instance)
     update_fields = calculate_lookup_dict(trait_update)
 
     if len(original_fields.keys() - update_fields.keys()) == 0 and len(
             update_fields.keys() - original_fields.keys()) == 0:
-        adapter.update_trait_fields(trait_update)
+        TraitManagementAdapter.update_trait_fields(trait_update)
     else:
         trait_update.version = trait_info[1] + 1
-        adapter.create_trait(trait_update)
+        TraitManagementAdapter.create_trait(trait_update)
 
     DataTraitAdapter.flush_data_trait_tables()
 
@@ -90,7 +90,7 @@ def post_new_datatrait(name: str):
 @routes.route('/dataTraitManagement/<string:name>', methods=['DELETE'])
 @login_required
 def delete_datatrait(name: str):
-    trait_info = adapter.find_id(name)
+    trait_info = TraitManagementAdapter.find_id(name)
     if trait_info is None:
         return Response(status=400, response=BasicVersionNotFound().to_json())
 
@@ -100,7 +100,7 @@ def delete_datatrait(name: str):
         if trait_instance.usages() > 0:
             return Response(status=400, response=TraitStillInUsage().to_json())
 
-    adapter.delete_trait(name)
+    TraitManagementAdapter.delete_trait(name)
 
     return Response(status=202)
 
@@ -120,14 +120,14 @@ def put_new_datatrait():
     if name_error is not None:
         return Response(status=400, response=name_error.to_json())
 
-    if adapter.find_id(trait.title) is not None:
+    if TraitManagementAdapter.find_id(trait.title) is not None:
         return Response(status=400, response=DuplicatedTitleVersion().to_json())
 
     field_name_error = find_field_name_error(trait)
     if field_name_error is not None:
         return Response(status=400, response=field_name_error.to_json())
 
-    adapter.create_trait(trait, trait.author)
+    TraitManagementAdapter.create_trait(trait, trait.author)
     DataTraitAdapter.flush_data_trait_tables()
 
     return Response(status=202)

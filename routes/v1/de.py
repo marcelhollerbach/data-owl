@@ -25,7 +25,7 @@ def list_all_entries():
     The list contains he ID with all default fields.
     :return:
     """
-    ids = adapter.find_all_valid_ids()
+    ids = TraitManagementAdapter.find_all_valid_ids()
     default_trait = DataTraitAdapter.DEFAULT
     enriched_ids = [{'id': elem_id} | default_trait.receive(elem_id).trait_instances for elem_id in ids]
     return Response(status=202, response=json.dumps(enriched_ids))
@@ -42,7 +42,7 @@ def query_entry(entry_id: str):
     :param entry_id: The ID of the entry
     :return:
     """
-    if not adapter.alive_id(entry_id):
+    if not TraitManagementAdapter.alive_id(entry_id):
         return Response(status=404)
     implemented_traits, known_trait_defs = capture_state(entry_id)
     impls = []
@@ -64,7 +64,7 @@ def verify_assertions(entry: DataEntry):
 @routes.route('/dataEntry/<string:id>', methods=['POST'])
 @login_required
 def update_entry(entry_id: str):
-    if not adapter.alive_id(entry_id):
+    if not TraitManagementAdapter.alive_id(entry_id):
         return Response(status=404)
 
     data_entry_dict = request.get_json()
@@ -112,25 +112,25 @@ def commit_workflow(workflow):
     for (trait, instance) in workflow.job_new_inserts:
         trait_db = DataTraitAdapter.to_db_traits(trait)
         trait_db.insert(workflow.payload.id, instance.trait_instances)
-        adapter.register_implementation(workflow.payload.id, trait)
+        TraitManagementAdapter.register_implementation(workflow.payload.id, trait)
     # delete all old traits
     for trait in workflow.job_delete:
         trait_db = DataTraitAdapter.to_db_traits(trait)
         trait_db.delete(workflow.payload.id)
-        adapter.unregister_implementation(workflow.payload.id, trait)
+        TraitManagementAdapter.unregister_implementation(workflow.payload.id, trait)
 
 
 @routes.route('/dataEntry/<string:id>', methods=['DELETE'])
 @login_required
 def delete_entry(entry_id: str):
-    if not adapter.alive_id(entry_id):
+    if not TraitManagementAdapter.alive_id(entry_id):
         return Response(status=404)
     implemented_traits, known_trait_defs = capture_state(entry_id)
     impls = []
     for (title, version) in implemented_traits.items():
         trait_db = DataTraitAdapter.to_db_traits(known_trait_defs[title])
         impls.append(trait_db.delete(entry_id))
-    adapter.invalidate_id(entry_id)
+    TraitManagementAdapter.invalidate_id(entry_id)
     return Response(status=202, response=DataEntryResult(id=entry_id, instances=impls).to_json())
 
 
@@ -161,7 +161,7 @@ def put_new_dc():
     assert 'Meta-Data' not in [title for (title, _) in workflow.missing_traits]
 
     workflow.fill_joblists()
-    workflow.payload.id = adapter.register_id()
+    workflow.payload.id = TraitManagementAdapter.register_id()
 
     commit_workflow(workflow)
 

@@ -30,36 +30,30 @@ class TestTraitAdapter(TestCase):
 
     def setUp(self) -> None:
         basic.db.DATABASE = TEST_DATABASE
-        self.adapter = DataTraitAdapter()
-        self.adapter2 = DataEntriesAdapter()
-        self.adapter3 = TraitManagementAdapter()
         self.app = Flask(__name__)
         with self.app.app_context():
-            self.adapter2.ensure_data()
-            self.adapter3.ensure_data()
-            self.adapter3.create_trait(trait, author='asdf')
+            DataEntriesAdapter.ensure_data()
+            TraitManagementAdapter.ensure_data()
+            TraitManagementAdapter.create_trait(trait, author='asdf')
 
     def tearDown(self) -> None:
         os.remove(TEST_DATABASE)
 
     def test_flush_data_trait_tables(self):
         with self.app.app_context():
-            self.adapter.flush_data_trait_tables()
+            DataTraitAdapter.flush_data_trait_tables()
 
 
 class TestTraitAdapterPosition(TestCase):
 
     def setUp(self) -> None:
         basic.db.DATABASE = TEST_DATABASE
-        adapter = DataTraitAdapter()
-        self.adapter = adapter2 = DataEntriesAdapter()
-        adapter3 = TraitManagementAdapter()
         self.app = Flask(__name__)
         with self.app.app_context():
-            adapter3.ensure_data()
-            adapter2.ensure_data()
-            adapter3.create_trait(trait, author='asdf')
-            adapter.flush_data_trait_tables()
+            TraitManagementAdapter.ensure_data()
+            DataEntriesAdapter.ensure_data()
+            TraitManagementAdapter.create_trait(trait, author='asdf')
+            DataTraitAdapter.flush_data_trait_tables()
             self.obj = TEST_TRAIT_ADAPTER
 
     def tearDown(self) -> None:
@@ -67,7 +61,7 @@ class TestTraitAdapterPosition(TestCase):
 
     def test_insert(self):
         with self.app.app_context():
-            entry_id = self.adapter.register_id()
+            entry_id = DataEntriesAdapter.register_id()
             self.obj.insert(entry_id, {
                 "currency": "EUR"
             })
@@ -77,7 +71,7 @@ class TestTraitAdapterPosition(TestCase):
 
     def test_update(self):
         with self.app.app_context():
-            entry_id = self.adapter.register_id()
+            entry_id = DataEntriesAdapter.register_id()
             self.obj.insert(entry_id, {
                 "currency": "EUR"
             })
@@ -90,7 +84,7 @@ class TestTraitAdapterPosition(TestCase):
 
     def test_delete(self):
         with self.app.app_context():
-            entry_id = self.adapter.register_id()
+            entry_id = DataEntriesAdapter.register_id()
             self.obj.insert(entry_id, {
                 "currency": "EUR"
             })

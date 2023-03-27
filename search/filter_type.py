@@ -17,7 +17,7 @@ class TypeFilter(AbstractFilter):
 
     def apply_base(self) -> list[str]:
         traits = get_data_traits_versions()
-        return adapter.fetch_all_implementors(traits[self.value])
+        return TraitManagementAdapter.fetch_all_implementors(traits[self.value])
 
     def apply(self, previous_state: list[str]) -> list[str]:
         result = self.apply_base()
