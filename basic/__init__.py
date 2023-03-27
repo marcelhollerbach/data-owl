@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from enum import Enum
+from typing import Optional
 
 from dataclasses_json import dataclass_json
 
@@ -42,7 +43,7 @@ class DataTrait:
     """
     title: str
     description: str
-    author: str
+    author: Optional[str]
     fields: list[TraitAttribute]
     version: int
 

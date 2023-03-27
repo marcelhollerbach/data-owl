@@ -5,7 +5,7 @@ from dataclasses_json import dataclass_json
 
 from basic import DataTrait, DataTraitInstance
 from basic.db import get_db_connection
-from dataTraitManagement.api import get_data_traits_versions
+from dataTraitManagement.api import get_data_traits_versions, get_data_traits_for_management
 
 
 def gen_table_decl(trait: DataTrait) -> (str, str, str):
@@ -110,15 +110,19 @@ class DataTraitAdapter:
             cur.execute(f"CREATE TABLE IF NOT EXISTS {table_decl[0]}")
         con.commit()
 
-    def find_data_trait(self, title: str) -> DataTraitDBOperation:
+    def find_data_trait(self, title: str, version: int | None = None) -> DataTraitDBOperation:
         """
         Receive the data trait db connection for a given data trait.
         Does not validate the existance of the trait.
 
-        :param title: The title of the trait
+        :param version:
+        :param title: The title of the trait If None, the newest is taken
         :return: The db object for the data trait
         """
-        traits = get_data_traits_versions()
-        assert title in traits
-        trait = traits[title]
-        return DataTraitDBOperation(trait)
+        trait = get_data_traits_for_management(title)[0]
+        index = 0
+        if version is not None:
+            for i, trait_version in enumerate(trait.versions):
+                if trait_version.version == version:
+                    index = i
+        return DataTraitDBOperation(trait.versions[index])

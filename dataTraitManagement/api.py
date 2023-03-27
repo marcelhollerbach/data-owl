@@ -61,7 +61,28 @@ hardcoded_default_management = [
 ]
 
 
+def get_data_trait(name: str, version: int) -> DataTrait:
+    """
+    Return a user managed data trait that is known by that name and version
+
+    :param name: The name of the trait
+    :param version: The version of the trait
+    :return: The Datatrait
+    """
+    for trait_def in hardcoded_default:
+        if trait_def.title == name and trait_def.version == version:
+            return trait_def
+    return adapter.get_trait(name, version)
+
+
 def get_data_traits_versions(searched_name: Union[str, None] = None) -> dict[str, DataTrait]:
+    """
+    Return all user-created and hardcoded data trait management object
+
+    Return a list of Datatraits, all datatraits in the newest version.
+
+    :return: List of datatraits
+    """
     tmp_concat = hardcoded_default
     tmp_concat.extend(get_user_managed_data_traits_versions(searched_name))
     return dict((trait.title, trait) for trait in tmp_concat)
@@ -69,9 +90,9 @@ def get_data_traits_versions(searched_name: Union[str, None] = None) -> dict[str
 
 def get_user_managed_data_traits_versions(searched_name: Union[str, None] = None) -> list[DataTrait]:
     """
-    Return all live data trait management object
+    Return all user-created data trait management object
 
-    Return a list of Datatraits, all datatraits are defined in the newest version.
+    Return a list of Datatraits, all datatraits in the newest version.
 
     :return: List of datatraits
     """
@@ -97,12 +118,17 @@ def get_data_traits_for_management(searched_name: Union[str, None] = None) -> li
         :return: The object
         """
         instances = [adapter.get_trait(title, version) for version in versions]
+        instances.sort(key=lambda x: x.version, reverse=True)
         return DataTraitManagement(title=title, description=instances[-1].description, immutable=False,
                                    versions=instances, enabled_per_default=False, readonly=False)
 
     reduction_map = get_all_traits_managed(searched_name)
-    return [map_to_data_trait_management(title, versions) for title, versions in
-            reduction_map.items()] + hardcoded_default_management
+    db_result = [map_to_data_trait_management(title, versions) for title, versions in
+                 reduction_map.items()] + hardcoded_default_management
+    if searched_name is not None:
+        return [x for x in db_result if x.title == searched_name]
+    else:
+        return db_result
 
 
 def get_all_traits_managed(searched_name: Union[str, None]) -> dict[str, list[int]]:

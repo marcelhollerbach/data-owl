@@ -5,12 +5,13 @@ from apiflask import APIBlueprint
 from dataclasses_json import dataclass_json
 from flask import Response, request
 
-from basic import DataTraitInstance, DataTrait
+from basic import DataTraitInstance
 from basic.annotations import login_required
 from dataEntries import adapter
+from dataEntries.api import DataEntry, WorkflowDataEntry
 from dataTrait import adapter as trait_adapter
 from dataTrait.api import find_relevant_traits
-from dataTraitManagement.api import get_data_traits_versions, MetaDataHelper
+from dataTraitManagement.api import MetaDataHelper
 
 routes = APIBlueprint('dataEntries', __name__)
 
@@ -53,71 +54,67 @@ def query_entry(id: str):
     return Response(status=202, response=DataEntryResult(id=id, instances=impls).to_json())
 
 
+def verify_assertions(entry: DataEntry):
+    if 'Meta-Data' in [instance.title for instance in entry.instances]:
+        return Response(status=400, response=MetaDataManagedBySystem().to_json())
+
+    if 'Default' not in [instance.title for instance in entry.instances]:
+        return Response(status=400, response=DefaultInstanceMissing().to_json())
+    return None
+
+
 @routes.route('/dataEntry/<string:id>', methods=['POST'])
 @login_required
-def update_entry(id: str):
-    if not adapter.alive_id(id):
+def update_entry(entry_id: str):
+    if not adapter.alive_id(entry_id):
         return Response(status=404)
 
-    traits = get_data_traits_versions()
     data_entry_dict = request.get_json()
 
     DataEntry.schema().load(data_entry_dict)
     entry: DataEntry = DataEntry.from_dict(data_entry_dict)
 
-    if entry.id != id:
+    if entry.id != entry_id:
         return Response(status=400, response=AmbigiousIdFields().to_json())
 
-    # fetch all implemented traits
-    implemented_traits = adapter.fetch_all_implementations(id)
-    known_traits = find_relevant_traits(implemented_traits)
+    response = verify_assertions(entry)
+    if response is not None:
+        return response
 
-    # helper lists
-    defined_names = [instance.title for instance in entry.instances]
-    missing_traits = [trait for trait in known_traits if trait not in defined_names]
-    missing_traits.remove('Meta-Data')
+    workflow = WorkflowDataEntry(entry)
+    workflow.verifyTraitExistance()
 
-    if 'Default' not in defined_names:
-        return Response(status=400, response=DefaultInstanceMissing().to_json())
+    # Inject metadata for this entry
+    workflow.payload.instances.append(MetaDataHelper.update(entry.id))
 
-    if 'Meta-Data' in defined_names:
-        return Response(status=400, response=MetaDataManagedBySystem().to_json())
+    workflow.fill_user_passed_traits()
+    workflow.verify_trait_instances()
 
-    # Inject meta data for this entry
-    entry.instances.append(MetaDataHelper.update(entry.id))
-    used_data_traits = entry.validate()
+    assert 'Meta-Data' in workflow.user_passed_traits
+    assert 'Meta-Data' not in [title for (title, _) in workflow.missing_traits]
 
-    # calculate list of traits and how to work with them
-    update_traits = [instance for instance in entry.instances if
-                     instance.title in known_traits]
-    new_traits = [instance for instance in entry.instances if instance.title not in known_traits]
-    delete_traits = [instance[1] for instance in implemented_traits if instance[1] in missing_traits]
+    workflow.fill_joblists()
 
-    assert 'Meta-Data' in [u.title for u in update_traits]
-    assert 'Meta-Data' not in [u.title for u in new_traits]
-    assert 'Meta-Data' not in delete_traits
+    return Response(status=202, response=DataEntryPostReply(id=entry_id).to_json())
 
-    # update all existing trait instances
-    for instance in update_traits:
-        # FIXME handling versioning ...
-        # FIXME if these settings here are equal to whatever is stored right now - don't do anything
-        # FIXME if these settings here are NOT equal: Update and assume newest version
+
+def commit_workflow(workflow):
+    # Update existing content
+    for (trait_def, instance) in workflow.job_update:
+        trait_db = trait_adapter.find_data_trait(trait_def.title, trait_def.version)
+        stored_instance = trait_db.receive(workflow.payload.id)
+        if stored_instance != instance:
+            trait_db.update(workflow.payload.id, instance.trait_instances)
+    # insert all new traits and new versions
+    for (trait, instance) in workflow.job_new_inserts:
         trait_db = trait_adapter.find_data_trait(instance.title)
-        trait_db.update(id, instance.trait_instances)
-
-    # insert all new traits
-    for instance in new_traits:
-        trait_db = trait_adapter.find_data_trait(instance.title)
-        trait_db.insert(id, instance.trait_instances)
-        adapter.register_implementation(id, used_data_traits[instance.title])
-
+        trait_db.insert(workflow.payload.id, instance.trait_instances)
+        adapter.register_implementation(workflow.payload.id, trait)
     # delete all old traits
-    for instance in delete_traits:
-        trait_db = trait_adapter.find_data_trait(instance)
-        trait_db.delete(id)
-        adapter.unregister_implementation(id, traits[instance])
-
-    return Response(status=202, response=DataEntryPostReply(id=id).to_json())
+    for trait in workflow.job_delete:
+        trait_db = trait_adapter.find_data_trait(trait.title)
+        trait_db.delete(workflow.payload.id)
+        adapter.unregister_implementation(workflow.payload.id, trait)
 
 
 @routes.route('/dataEntry/<string:id>', methods=['DELETE'])
@@ -140,40 +137,33 @@ def delete_entry(id: str):
 def put_new_dc():
     data_entry_dict = request.get_json()
 
+    data_entry_dict["id"] = ''
+
     DataEntry.schema().load(data_entry_dict)
     entry: DataEntry = DataEntry.from_dict(data_entry_dict)
 
-    if len([x.title for x in entry.instances if x.title == 'Default']) != 1:
-        return Response(status=400, response=DefaultInstanceMissing().to_json())
+    response = verify_assertions(entry)
+    if response is not None:
+        return response
 
-    # Inject meta data
-    entry.instances.append(MetaDataHelper.create())
+    workflow = WorkflowDataEntry(entry)
+    workflow.verifyTraitExistance()
 
-    used_data_traits = entry.validate()
+    # Inject metadata for this entry
+    workflow.payload.instances.append(MetaDataHelper.create())
 
-    registered_id = adapter.register_id()
+    workflow.fill_user_passed_traits()
+    workflow.verify_trait_instances()
 
-    for instance in entry.instances:
-        trait_db = trait_adapter.find_data_trait(instance.title)
-        trait_db.insert(registered_id, instance.trait_instances)
-        adapter.register_implementation(registered_id, used_data_traits[instance.title])
+    assert 'Meta-Data' in workflow.user_passed_traits
+    assert 'Meta-Data' not in [title for (title, _) in workflow.missing_traits]
 
-    return Response(status=202, response=DataEntryPostReply(id=registered_id).to_json())
+    workflow.fill_joblists()
+    workflow.payload.id = adapter.register_id()
 
+    commit_workflow(workflow)
 
-@dataclass_json
-@dataclasses.dataclass
-class DataEntry:
-    id: str
-    instances: list[DataTraitInstance]
-
-    def validate(self) -> dict[str, DataTrait]:
-        traits = get_data_traits_versions()
-        result = {}
-        for instance in self.instances:
-            traits[instance.title].validate(instance)
-            result[instance.title] = traits[instance.title]
-        return result
+    return Response(status=202, response=DataEntryPostReply(id=workflow.payload.id).to_json())
 
 
 @dataclass_json

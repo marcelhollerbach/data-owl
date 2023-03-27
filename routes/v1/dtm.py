@@ -108,6 +108,9 @@ def delete_datatrait(name: str):
 def put_new_datatrait():
     data = request.get_json()
 
+    data["author"] = fetch_author()
+    data["version"] = 0
+
     DataTrait.schema().load(data)
     trait: DataTrait = DataTrait.from_dict(data)
 
@@ -122,10 +125,7 @@ def put_new_datatrait():
     if field_name_error is not None:
         return Response(status=400, response=field_name_error.to_json())
 
-    trait.version = 0
-    trait.author = fetch_author()
-
-    adapter.create_trait(trait)
+    adapter.create_trait(trait, trait.author)
     trait_adapter.flush_data_trait_tables()
 
     return Response(status=202)
