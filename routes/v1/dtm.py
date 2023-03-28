@@ -35,6 +35,7 @@ def find_name_error(title: str):
             return error
     if len(title) <= 0:
         error.message = "Title must be longer than 0 characters"
+        return error
     else:
         return None
 

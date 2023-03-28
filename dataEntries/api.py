@@ -52,7 +52,7 @@ class WorkflowDataEntry:
                 try:
                     trait_versioned_def.validate(instance)
                     self.user_passed_traits[instance.title] = (trait_versioned_def, instance)
-                except AssertionError:
+                except KeyError:
                     self.user_passed_traits[instance.title] = (
                         self.known_trait_defs[instance.title].versions[0], instance)
 

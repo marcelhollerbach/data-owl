@@ -55,7 +55,7 @@ class DataTraitDBOperation:
         :return: The instance of this data trait.
         """
         if len(self.trait.fields) == 0:
-            return DataTraitInstance(title=self.trait.title, trait_instances={})
+            return DataTraitInstance(title=self.trait.title, version=self.trait.version, trait_instances={})
         attr_list = [field.name for field in self.trait.fields]
         id_list = ",".join([attr.replace("-", "_") for attr in attr_list])
         con = get_db_connection()
@@ -67,7 +67,7 @@ class DataTraitDBOperation:
                                        f"The trait {self.trait} is not defined on {entry_id}")
         else:
             instance = dict(zip(attr_list, list(received_data)))
-            return DataTraitInstance(title=self.trait.title, trait_instances=instance)
+            return DataTraitInstance(title=self.trait.title, version=self.trait.version, trait_instances=instance)
 
     def update(self, entry_id: str, instance: dict[str, str]):
         """

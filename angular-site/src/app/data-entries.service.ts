@@ -4,7 +4,7 @@ import { Observable } from 'rxjs';
 import { environment } from 'src/environments/environment';
 
 export class DataEntryInstance {
-  constructor(public title: string, public trait_instances: any) { }
+  constructor(public title: string, public version: string, public trait_instances: any) { }
 }
 
 export class DataEntry {

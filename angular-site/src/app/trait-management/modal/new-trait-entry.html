@@ -1,6 +1,6 @@
-<h1 mat-dialog-title>Create new Trait</h1>
-<div mat-dialog-content>
-
+<h1 mat-dialog-title *ngIf="!this.isUpdate()">Create new Trait</h1>
+<h1 mat-dialog-title *ngIf="this.isUpdate()">Update Trait {{this.title}}</h1>
+<mat-dialog-content class="mat-typography">
     <h5>Version: {{version}}</h5>
     <mat-form-field appearance="fill">
         <mat-label>Title</mat-label>
@@ -42,17 +42,16 @@
         </mat-expansion-panel>
         <button mat-button (click)="addDummyField()">Add new+</button>
     </mat-accordion>
-</div>
-
-<div mat-dialog-actions>
     <div *ngIf="this.error.display == true" class="error-display">
-        <h2> There is a error!</h2>
+        <h2> Server Error:</h2>
         <span>{{this.error.backend.error}}</span>
         <p>{{this.error.backend.message}}</p>
     </div>
-    <br>
+</mat-dialog-content>
+
+<div mat-dialog-actions>
     <button *ngIf="!this.isUpdate()" mat-button cdkFocusInitial (click)="updateEntry()" [disabled]="this.in_flight">Create</button>
     <button *ngIf="this.isUpdate()" mat-button cdkFocusInitial (click)="updateEntry()" [disabled]="this.in_flight">Update</button>
-    <button *ngIf="this.isUpdate()" mat-button cdkFocusInitial (click)="deleteEntry()" [disabled]="this.in_flight">Delete</button>
     <button mat-button mat-dialog-close [disabled]="this.in_flight">Cancel</button>
+    <button *ngIf="this.isUpdate()" mat-raised-button cdkFocusInitial (click)="deleteEntry()" color="warn">Delete</button>
 </div>

@@ -30,8 +30,9 @@ class DataTraitInstance:
 
     Each attribute of the DataTrait must be defined
     """
-    trait_instances: dict[str, str]
     title: str
+    version: Optional[int]
+    trait_instances: dict[str, str]
 
 
 @dataclass_json
@@ -58,7 +59,7 @@ class DataTrait:
         wrong_keys = [x for x in attr_values.keys() if x not in attr_definition]
 
         if len(wrong_keys) != 0 or len(missing_keys) != 0:
-            raise KeyError(f"Missing {wrong_keys} {missing_keys}")
+            raise KeyError(f"Missing {missing_keys} unexpected key: {wrong_keys} ")
 
         # now verify the attribute
         for available_key in attr_values.keys():

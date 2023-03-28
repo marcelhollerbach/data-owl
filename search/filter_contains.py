@@ -23,7 +23,7 @@ class ContainsFilter(AbstractFilter):
         for entry_id in previous_state:
             implemented_traits, known_trait_defs = capture_state(entry_id)
             for (title, version) in implemented_traits.items():
-                impl = DataTraitAdapter.to_db_traits(known_trait_defs[title])
+                impl = DataTraitAdapter.to_db_traits(known_trait_defs[title].search_version(version))
                 instance = impl.receive(entry_id)
                 for v in instance.trait_instances.values():
                     if self.value in v:

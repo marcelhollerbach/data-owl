@@ -18,4 +18,5 @@ class MetaDataHelper:
             'Invalidator': ''
         }
 
-        return DataTraitInstance(title='Meta-Data', trait_instances=data)
+        return DataTraitInstance(title='Meta-Data', trait_instances=data,
+                                 version=DataTraitAdapter.META_DATA.trait.version)

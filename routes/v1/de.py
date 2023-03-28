@@ -47,7 +47,7 @@ def query_entry(entry_id: str):
     implemented_traits, known_trait_defs = capture_state(entry_id)
     impls = []
     for (title, version) in implemented_traits.items():
-        trait_db = DataTraitAdapter.to_db_traits(known_trait_defs[title].versions[0])
+        trait_db = DataTraitAdapter.to_db_traits(known_trait_defs[title].search_version(version))
         impls.append(trait_db.receive(entry_id))
     return Response(status=202, response=DataEntryResult(id=entry_id, instances=impls).to_json())
 
