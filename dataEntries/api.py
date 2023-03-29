@@ -1,5 +1,5 @@
 import dataclasses
-from typing import Dict, Tuple
+from typing import Dict, Tuple, List
 
 from dataclasses_json import dataclass_json
 
@@ -12,7 +12,7 @@ from dataTraitManagement.api import get_data_traits_for_management, DataTraitMan
 @dataclasses.dataclass
 class DataEntry:
     id: str
-    instances: list[DataTraitInstance]
+    instances: List[DataTraitInstance]
 
 
 class TraitNotKnownError(Exception):

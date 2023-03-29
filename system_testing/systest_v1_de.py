@@ -39,7 +39,7 @@ def get(path: str):
 
 
 STANDARD_PAYLOAD = DataEntry('1111-2222-3333-4444', [
-    DataTraitInstance('Default', {
+    DataTraitInstance('Default', 1, {
         'Name': 'test',
         'Description': 'description',
         'State': 'OK'
@@ -101,7 +101,7 @@ class TestV1De(TestCase):
         payload = copy.deepcopy(STANDARD_PAYLOAD)
         payload.id = reply.id
         payload.instances.append(DataTraitInstance(
-            'Meta-Data', {
+            'Meta-Data', 1, {
                 'Creator': 'bla@something.com',
                 'Updater': 'bla@something.com',
                 'Invalidator': ''
@@ -127,7 +127,7 @@ class TestV1De(TestCase):
         payload = copy.deepcopy(STANDARD_PAYLOAD)
         payload.id = reply.id
         payload.instances.append(DataTraitInstance(
-            'blabla', {}
+            'blabla', 1, {}
         ))
         res = post(f"v1/dataEntry/{reply.id}", payload)
         self.assertEqual(res.status_code, 400)

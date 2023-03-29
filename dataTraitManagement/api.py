@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Union
+from typing import Union, Dict, List
 
 from dataclasses_json import dataclass_json
 
@@ -77,7 +77,7 @@ def get_data_trait(name: str, version: int) -> DataTrait:
     return TraitManagementAdapter.get_trait(name, version)
 
 
-def get_data_traits_versions(searched_name: Union[str, None] = None) -> dict[str, DataTrait]:
+def get_data_traits_versions(searched_name: Union[str, None] = None) -> Dict[str, DataTrait]:
     """
     Return all user-created and hardcoded data trait management object
 
@@ -90,7 +90,7 @@ def get_data_traits_versions(searched_name: Union[str, None] = None) -> dict[str
     return dict((trait.title, trait) for trait in tmp_concat)
 
 
-def get_user_managed_data_traits_versions(searched_name: Union[str, None] = None) -> list[DataTrait]:
+def get_user_managed_data_traits_versions(searched_name: Union[str, None] = None) -> List[DataTrait]:
     """
     Return all user-created data trait management object
 
@@ -103,7 +103,7 @@ def get_user_managed_data_traits_versions(searched_name: Union[str, None] = None
     return [TraitManagementAdapter.get_trait(title, version) for (title, version) in reduction_map.items()]
 
 
-def get_data_traits_for_management(searched_name: Union[str, None] = None) -> list[DataTraitManagement]:
+def get_data_traits_for_management(searched_name: Union[str, None] = None) -> List[DataTraitManagement]:
     """
     Return all data trait management objects.
 
@@ -112,7 +112,7 @@ def get_data_traits_for_management(searched_name: Union[str, None] = None) -> li
     :return: List of Data Trait Managment objects
     """
 
-    def map_to_data_trait_management(title: str, versions: list[int]) -> DataTraitManagement:
+    def map_to_data_trait_management(title: str, versions: List[int]) -> DataTraitManagement:
         """
         Map a title and a list of versions to a data trait management instance.
         :param title: The title of the trait
@@ -133,7 +133,7 @@ def get_data_traits_for_management(searched_name: Union[str, None] = None) -> li
         return db_result
 
 
-def get_all_traits_managed(searched_name: Union[str, None]) -> dict[str, list[int]]:
+def get_all_traits_managed(searched_name: Union[str, None]) -> Dict[str, List[int]]:
     """
     Get a map with all traits and the defined versions
     :return: Dict that maps each trait name to a list of defined versions
@@ -146,7 +146,7 @@ def get_all_traits_managed(searched_name: Union[str, None]) -> dict[str, list[in
             return True
 
     traits = [x for x in TraitManagementAdapter.get_all_traits() if accepts(x)]
-    reduction_map: dict[str, list[int]] = {}
+    reduction_map: Dict[str, List[int]] = {}
     for trait in traits:
         if trait[0] in reduction_map:
             reduction_map[trait[0]].append(trait[1])

@@ -2,6 +2,7 @@ import dataclasses
 import logging
 
 from dataclasses_json import dataclass_json
+from typing import Dict
 
 from basic import DataTrait, DataTraitInstance
 from basic.db import get_db_connection
@@ -33,7 +34,7 @@ class DataTraitDBOperation:
         self.trait = trait
         self.table_decl = gen_table_decl(self.trait)
 
-    def insert(self, entry_id: str, instance: dict[str, str]):
+    def insert(self, entry_id: str, instance: Dict[str, str]):
         """
         Insert a specific instance of a trait
         :param entry_id: The id which is reserved for this data entry
@@ -69,7 +70,7 @@ class DataTraitDBOperation:
             instance = dict(zip(attr_list, list(received_data)))
             return DataTraitInstance(title=self.trait.title, version=self.trait.version, trait_instances=instance)
 
-    def update(self, entry_id: str, instance: dict[str, str]):
+    def update(self, entry_id: str, instance: Dict[str, str]):
         """
         Update a specific instance of a trait
         :param entry_id: The id which is reserved for this data entry
@@ -121,5 +122,6 @@ class DataTraitAdapter:
     def to_db_traits(dt: DataTrait) -> DataTraitDBOperation:
         return DataTraitDBOperation(dt)
 
-    DEFAULT = to_db_traits(hardcoded_default[0])
-    META_DATA = to_db_traits(hardcoded_default[1])
+
+DataTraitAdapter.DEFAULT = DataTraitAdapter.to_db_traits(hardcoded_default[0])
+DataTraitAdapter.META_DATA = DataTraitAdapter.to_db_traits(hardcoded_default[1])

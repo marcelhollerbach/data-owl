@@ -1,5 +1,5 @@
 cd ./angular-site/ || exit
-ng build --build-optimizer --base-href=/ui/ --configuration production
+npx ng build --build-optimizer --base-href=/ui/ --configuration production
 cd ..
 rm -r ./static/ || true
 rm -r ./templates/ || true

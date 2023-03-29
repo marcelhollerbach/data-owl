@@ -1,3 +1,5 @@
+from typing import List
+
 from dataEntries import DataEntriesAdapter
 from dataEntries.api import capture_state
 from dataTrait.db import DataTraitAdapter
@@ -14,11 +16,11 @@ class ContainsFilter(AbstractFilter):
         if not self.value.isalnum():
             raise VerificationException("Only alphanumberical searches are allowed")
 
-    def apply_base(self) -> list[str]:
+    def apply_base(self) -> List[str]:
         all_ids = DataEntriesAdapter.find_all_valid_ids()
         return self.apply(all_ids)
 
-    def apply(self, previous_state: list[str]) -> list[str]:
+    def apply(self, previous_state: List[str]) -> List[str]:
         result = []
         for entry_id in previous_state:
             implemented_traits, known_trait_defs = capture_state(entry_id)

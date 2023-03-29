@@ -1,6 +1,8 @@
 import datetime
 import uuid
 
+from typing import List, Tuple
+
 from basic import DataTrait
 from basic.db import get_db_connection
 
@@ -35,7 +37,7 @@ class DataEntriesAdapter:
             return False
 
     @staticmethod
-    def find_all_valid_ids() -> list[str]:
+    def find_all_valid_ids() -> List[str]:
         con = get_db_connection()
         cur = con.cursor()
         cur.execute("SELECT id, valid_from, valid_until FROM data_entries")
@@ -89,7 +91,7 @@ class DataEntriesAdapter:
         con.commit()
 
     @staticmethod
-    def fetch_all_implementations(entry_id) -> list[(str, str)]:
+    def fetch_all_implementations(entry_id) -> List[Tuple[str, str]]:
         con = get_db_connection()
         cur = con.cursor()
         cur.execute("SELECT id, version, trait_name FROM data_vtable WHERE id = ?", (str(entry_id),))

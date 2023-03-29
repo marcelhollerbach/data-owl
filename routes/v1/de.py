@@ -4,6 +4,7 @@ import json
 from apiflask import APIBlueprint
 from dataclasses_json import dataclass_json
 from flask import Response, request
+from typing import List
 
 from basic import DataTraitInstance
 from basic.annotations import login_required
@@ -27,7 +28,7 @@ def list_all_entries():
     """
     ids = DataEntriesAdapter.find_all_valid_ids()
     default_trait = DataTraitAdapter.DEFAULT
-    enriched_ids = [{'id': elem_id} | default_trait.receive(elem_id).trait_instances for elem_id in ids]
+    enriched_ids = [{'id': elem_id, **default_trait.receive(elem_id).trait_instances} for elem_id in ids]
     return Response(status=202, response=json.dumps(enriched_ids))
 
 
@@ -172,7 +173,7 @@ def put_new_dc():
 @dataclasses.dataclass
 class DataEntryResult:
     id: str
-    instances: list[DataTraitInstance]
+    instances: List[DataTraitInstance]
 
 
 @dataclass_json

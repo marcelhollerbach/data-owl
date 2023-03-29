@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from enum import Enum
-from typing import Optional
+from typing import Optional, Dict, List
 
 from dataclasses_json import dataclass_json
 
@@ -32,7 +32,7 @@ class DataTraitInstance:
     """
     title: str
     version: Optional[int]
-    trait_instances: dict[str, str]
+    trait_instances: Dict[str, str]
 
 
 @dataclass_json
@@ -45,7 +45,7 @@ class DataTrait:
     title: str
     description: str
     author: Optional[str]
-    fields: list[TraitAttribute]
+    fields: List[TraitAttribute]
     version: int
 
     def validate(self, trait: DataTraitInstance):

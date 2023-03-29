@@ -1,4 +1,7 @@
-from typing import Any
+from __future__ import annotations
+
+NoneType = type(None)
+from typing import Any, Union
 
 from basic import DataTrait, TraitAttribute
 from basic.db import get_db_connection
@@ -43,7 +46,7 @@ class TraitManagementAdapter:
         con.commit()
 
     @staticmethod
-    def find_id(title: str, version: int | None = None) -> Any | None:
+    def find_id(title: str, version: Union[int, NoneType] = None) -> Any | None:
         con = get_db_connection()
         cur = con.cursor()
         if version is None:
