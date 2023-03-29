@@ -1,0 +1,25 @@
+<mat-form-field  appearance="fill" >
+    <mat-label>Search condition</mat-label>
+    <mat-chip-grid #chipGrid aria-label="Search line" [errorStateMatcher]="errorStateMatcher" [formControl]="this.chip_control">
+      <mat-chip-row *ngFor="let term of this.terms"
+                    (removed)="remove(term)"
+                    [editable]="true"
+                    (edited)="edit(term, $event)"
+                    [aria-description]="'press enter to edit ' + term.syntax()"
+                    [matTooltip]="(term.error ? term.title + ' \n ' + term.message : '')"
+                    matTooltipClass="error-tooltip">
+        {{term.syntax()}}
+        <mat-icon matChipAvatar *ngIf="term.error == true">error</mat-icon>
+        <button matChipRemove [attr.aria-label]="'remove ' + term.syntax()">
+          <mat-icon>cancel</mat-icon>
+        </button>
+      </mat-chip-row>
+      <input matInput placeholder="New term"
+             [matChipInputFor]="chipGrid"
+             [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
+             [matChipInputAddOnBlur]="addOnBlur"
+             (matChipInputTokenEnd)="add($event)"
+            />
+    </mat-chip-grid>
+    <mat-error>{{this.chip_control.getError("error")}}</mat-error>
+  </mat-form-field>

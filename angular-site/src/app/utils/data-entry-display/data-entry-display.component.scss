@@ -1,0 +1,30 @@
+.mat-column-Name {
+    font-size: 20px;
+    width: 20%
+}
+
+.mat-column-Description {
+    font-size: 20px;
+    width: 80%
+}
+
+mat-row.mat-mdc-row{
+    &:hover{
+        background-color: lightgray;
+    }
+    border-bottom: black 2px;
+}
+
+.border_style {
+    th {
+        border-bottom: black 2px;
+        font-weight: bold;
+    }
+    td {
+        border-bottom: black 2px;
+    }
+}
+
+.mdc-data-table__cell {
+    border-width: 0px;
+}

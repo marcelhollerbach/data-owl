@@ -1,0 +1,49 @@
+<h1 mat-dialog-title *ngIf="this.isUpdate() == false">Create new data entry</h1>
+<h1 mat-dialog-title *ngIf="this.isUpdate() == true">Update data entry {{this.data.id}}</h1>
+<mat-dialog-content class="mat-typography">
+    <mat-chip-listbox #list (change)="assigned_traits_changed(list)" multiple="true">
+        <mat-chip-option *ngFor="let trait of available_traits$ | async;" 
+                    [selected]="this.implemented_traits.indexOf(trait.title) != -1 || trait.enabled_per_default" 
+                    [disabled]="trait.enabled_per_default">{{trait.title}}</mat-chip-option>
+    </mat-chip-listbox>
+    <mat-accordion class="example-headers-align"  multi>
+        <ng-container *ngFor="let trait of data_instance" >
+            <mat-expansion-panel #panel 
+                *ngIf="implemented_traits.indexOf(trait.klass.title) != -1 || trait.klass.enabled_per_default || trait.klass.readonly"
+                [expanded]="trait.klass.enabled_per_default">
+                <mat-expansion-panel-header>
+                    <mat-panel-title>
+                        {{trait.klass.title}}
+                    </mat-panel-title>
+                    <mat-panel-description>
+                        {{trait.klass.description}}
+                    </mat-panel-description>
+                </mat-expansion-panel-header>
+                <div *ngFor="let attr of trait.instances">
+                    <div [ngSwitch]="attr.meta.format">
+                        <mat-form-field *ngSwitchCase="'simple_string'" appearance="fill">
+                            <mat-label>{{attr.meta.name}}</mat-label>
+                            <input ngModel [disabled]="attr.readOnly" type="text" [(ngModel)]="attr.instance" matInput>
+                            <mat-hint>{{attr.meta.description}}</mat-hint>
+                        </mat-form-field>
+                        <div *ngSwitchDefault>
+                            Format {{attr.meta.format}} not understood                    
+                        </div>
+                    </div>
+                </div>
+                <button mat-raised-button color="accent" *ngIf="trait.version_upgrade_available" (click)="upgrade_version(trait)">Upgrade!</button>
+            </mat-expansion-panel>
+        </ng-container>
+        <div *ngIf="this.error.display == true" class="error-display">
+            <h2> Server Error:</h2>
+            <span>{{this.error.backend.error}}</span>
+            <p>{{this.error.backend.message}}</p>
+        </div>
+    </mat-accordion>
+</mat-dialog-content>
+<div mat-dialog-actions>
+    <button *ngIf="!this.isUpdate()" mat-button cdkFocusInitial (click)="updateEntry()" [disabled]="this.in_flight">Create</button>
+    <button *ngIf="this.isUpdate()" mat-button cdkFocusInitial (click)="updateEntry()" [disabled]="this.in_flight">Update</button>
+    <button mat-button mat-dialog-close >Cancel</button>
+    <button *ngIf="this.isUpdate()" mat-raised-button cdkFocusInitial (click)="deleteEntry()" color="warn">Delete</button>
+</div>
