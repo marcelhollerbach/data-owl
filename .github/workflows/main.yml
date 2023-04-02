@@ -2,7 +2,7 @@ name: Data-Owl tests
 run-name: ${{ github.actor }} is testing tests on data owl
 on: [push]
 jobs:
-  Explore-GitHub-Actions:
+  Test-Backend:
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -25,4 +25,3 @@ jobs:
       - name: System Tests
         run: |
           .github/workflows/run_system_tests.sh
-      
