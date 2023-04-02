@@ -3,3 +3,4 @@
 .pytest_cache
 .coverage
 .idea
+/system_testing/test_db.db
