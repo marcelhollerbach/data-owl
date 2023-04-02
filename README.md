@@ -1,3 +1,5 @@
+[![Data-Owl tests](https://github.com/marcelhollerbach/data-owl/actions/workflows/main.yml/badge.svg)](https://github.com/marcelhollerbach/data-owl/actions/workflows/main.yml)
+
 # Data-Owl
 
 The Data-Owl is a data catalogue. In this tool you can enlist your data and sort your data according to types.
