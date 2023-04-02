@@ -19,6 +19,10 @@ jobs:
           pip install ruff pytest
           if [ -f requirements.test.txt ]; then pip install -r requirements.test.txt; fi
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-      - name: Test with pytest
+      - name: Unit Tests
         run: |
           pytest
+      - name: System Tests
+        run: |
+          .github/workflows/run_system_tests.sh
+      
