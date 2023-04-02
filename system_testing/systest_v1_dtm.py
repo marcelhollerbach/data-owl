@@ -1,8 +1,10 @@
+import copy
+import json
 import uuid
 from copy import deepcopy
 
-from basic import DataTrait, TraitAttribute, Formats
-from system_testing.base import put, get, delete, post, STANDARD_DATATRAIT
+from basic import DataTrait, TraitAttribute, Formats, DataTraitInstance
+from system_testing.base import put, get, delete, post, STANDARD_DATATRAIT, STANDARD_PAYLOAD
 from system_testing.systest_test_case import SystestCase
 
 
@@ -79,3 +81,29 @@ class TestV1De(SystestCase):
 
         derivation.version = 1
         self.assertUpstreamDTM(derivation)
+
+    def test_deletion_when_used(self):
+        payload = self.forkADataTrait()
+
+        res = put("v1/dataTraitManagement/", payload)
+        self.assertEqual(res.status_code, 202)
+        self.cleanup_datamanagement.append(payload.title)
+
+        entry = copy.deepcopy(STANDARD_PAYLOAD)
+        entry.instances.append(DataTraitInstance(title=payload.title, version=0, trait_instances={
+            'Currency': 'EUR'
+        }))
+
+        res = put("v1/dataEntry", entry)
+        self.assertEqual(res.status_code, 202)
+        reply_id = json.loads(res.content)
+
+        res = delete(f"v1/dataTraitManagement/{payload.title}")
+        self.assertEqual(res.status_code, 400)
+
+        res2 = delete(f"v1/dataEntry/{reply_id}")
+        self.assertEqual(res2.status_code, 202)
+
+        res = delete(f"v1/dataTraitManagement/{payload.title}")
+        self.assertEqual(res.status_code, 202)
+
