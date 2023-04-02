@@ -3,53 +3,14 @@ import json
 import logging
 from unittest import TestCase
 
-import requests
-
 from basic import DataTraitInstance
-from dataEntries.api import DataEntry
 from routes.v1.de import DataEntryPostReply, DataEntryResult
-
-
-def standard_headers():
-    return {
-        'Accept': 'application/json, text/plain, */*'
-    }
-
-
-def put(path: str, payload: any):
-    return requests.put(f"http://localhost:5000/{path}",
-                        json=payload.to_dict(),
-                        headers=standard_headers())
-
-
-def post(path: str, payload: any):
-    return requests.post(f"http://localhost:5000/{path}",
-                         json=payload.to_dict(),
-                         headers=standard_headers())
-
-
-def delete(path: str):
-    return requests.delete(f"http://localhost:5000/{path}",
-                           headers=standard_headers())
-
-
-def get(path: str):
-    return requests.get(f"http://localhost:5000/{path}",
-                        headers=standard_headers())
-
-
-STANDARD_PAYLOAD = DataEntry('1111-2222-3333-4444', [
-    DataTraitInstance('Default', 1, {
-        'Name': 'test',
-        'Description': 'description',
-        'State': 'OK'
-    })
-])
+from system_testing.base import put, post, delete, get, STANDARD_PAYLOAD
 
 
 class TestV1De(TestCase):
 
-    def create_standart_entry(self) -> DataEntryPostReply:
+    def create_standard_entry(self) -> DataEntryPostReply:
         res = put("v1/dataEntry", STANDARD_PAYLOAD)
         reply = DataEntryPostReply.from_dict(json.loads(res.content))
         self.assertEqual(res.status_code, 202)
@@ -69,7 +30,7 @@ class TestV1De(TestCase):
         self.assertEqual(res2.status_code, 202)
 
     def test_create_and_delete(self):
-        reply = self.create_standart_entry()
+        reply = self.create_standard_entry()
         logging.info(f"Test created {reply.id}")
         get_reply = self.get_entry(reply)
         self.assertEqual(get_reply.id, reply.id)
@@ -83,7 +44,7 @@ class TestV1De(TestCase):
         self.assertEqual(res.status_code, 404)
 
     def test_update_of_default(self):
-        reply = self.create_standart_entry()
+        reply = self.create_standard_entry()
         logging.info(f"Test created {reply.id}")
         payload = copy.deepcopy(STANDARD_PAYLOAD)
         payload.id = reply.id
@@ -96,7 +57,7 @@ class TestV1De(TestCase):
         self.delete_entry(reply)
 
     def test_update_of_meta(self):
-        reply = self.create_standart_entry()
+        reply = self.create_standard_entry()
         logging.info(f"Test created {reply.id}")
         payload = copy.deepcopy(STANDARD_PAYLOAD)
         payload.id = reply.id
@@ -112,7 +73,7 @@ class TestV1De(TestCase):
         self.delete_entry(reply)
 
     def test_update_missing_default(self):
-        reply = self.create_standart_entry()
+        reply = self.create_standard_entry()
         logging.info(f"Test created {reply.id}")
         payload = copy.deepcopy(STANDARD_PAYLOAD)
         payload.id = reply.id
@@ -122,7 +83,7 @@ class TestV1De(TestCase):
         self.delete_entry(reply)
 
     def test_update_missing_trait(self):
-        reply = self.create_standart_entry()
+        reply = self.create_standard_entry()
         logging.info(f"Test created {reply.id}")
         payload = copy.deepcopy(STANDARD_PAYLOAD)
         payload.id = reply.id
