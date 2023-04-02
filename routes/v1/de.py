@@ -4,9 +4,7 @@ import json
 from apiflask import APIBlueprint
 from dataclasses_json import dataclass_json
 from flask import Response, request
-from typing import List
 
-from basic import DataTraitInstance
 from basic.annotations import login_required
 from dataEntries import DataEntriesAdapter
 from dataEntries.api import DataEntry, WorkflowDataEntry, TraitNotKnownError, capture_state
@@ -50,7 +48,7 @@ def query_entry(entry_id: str):
     for (title, version) in implemented_traits.items():
         trait_db = DataTraitAdapter.to_db_traits(known_trait_defs[title].search_version(version))
         impls.append(trait_db.receive(entry_id))
-    return Response(status=202, response=DataEntryResult(id=entry_id, instances=impls).to_json())
+    return Response(status=202, response=DataEntry(id=entry_id, instances=impls).to_json())
 
 
 def verify_assertions(entry: DataEntry):
@@ -99,7 +97,7 @@ def update_entry(entry_id: str):
 
     commit_workflow(workflow)
 
-    return Response(status=202, response=DataEntryPostReply(id=entry_id).to_json())
+    return Response(status=202, response=json.dumps(entry_id))
 
 
 def commit_workflow(workflow):
@@ -132,7 +130,7 @@ def delete_entry(entry_id: str):
         trait_db = DataTraitAdapter.to_db_traits(known_trait_defs[title].versions[0])
         impls.append(trait_db.delete(entry_id))
     DataEntriesAdapter.invalidate_id(entry_id)
-    return Response(status=202, response=DataEntryResult(id=entry_id, instances=impls).to_json())
+    return Response(status=202, response=DataEntry(id=entry_id, instances=impls).to_json())
 
 
 @routes.route('/dataEntry', methods=['PUT'])
@@ -166,20 +164,7 @@ def put_new_dc():
 
     commit_workflow(workflow)
 
-    return Response(status=202, response=DataEntryPostReply(id=workflow.payload.id).to_json())
-
-
-@dataclass_json
-@dataclasses.dataclass
-class DataEntryResult:
-    id: str
-    instances: List[DataTraitInstance]
-
-
-@dataclass_json
-@dataclasses.dataclass
-class DataEntryPostReply:
-    id: str
+    return Response(status=202, response=json.dumps(workflow.payload.id))
 
 
 @dataclass_json

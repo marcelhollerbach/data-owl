@@ -17,12 +17,6 @@ export interface DataEntryExploration {
   Name: string
 }
 
-export interface DataEntryPostReply {
-  id: string
-  name: string
-  description: string
-}
-
 @Injectable({
   providedIn: 'root'
 })
@@ -34,11 +28,11 @@ export class DataEntriesService {
   public findAll(): Observable<DataEntryExploration[]> {
     return this._findall
   }
-  public put(entry: DataEntry): Observable<DataEntryPostReply> {
-    return this.client.put<DataEntryPostReply>(environment.server + "v1/dataEntry", entry)
+  public put(entry: DataEntry): Observable<string> {
+    return this.client.put<string>(environment.server + "v1/dataEntry", entry)
   }
-  public post(entry: DataEntry): Observable<DataEntryPostReply> {
-    return this.client.post<DataEntryPostReply>(environment.server + "v1/dataEntry/" + entry.id, entry)
+  public post(entry: DataEntry): Observable<string> {
+    return this.client.post<string>(environment.server + "v1/dataEntry/" + entry.id, entry)
   }
   public find(id: string): Observable<DataEntry> {
     return this.client.get<DataEntry>(environment.server + "v1/dataEntry/" + id)

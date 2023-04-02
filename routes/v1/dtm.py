@@ -10,7 +10,7 @@ from basic.annotations import login_required, fetch_author
 from dataTrait.db import DataTraitAdapter
 from dataTraitManagement import TraitManagementAdapter
 from dataTraitManagement.api import get_data_traits_for_management, \
-    get_user_managed_data_traits_versions
+    get_user_managed_data_traits_versions, get_data_traits_versions
 
 routes = APIBlueprint('dataTraitManagement', __name__)
 
@@ -123,7 +123,7 @@ def put_new_datatrait():
     if name_error is not None:
         return Response(status=400, response=name_error.to_json())
 
-    if TraitManagementAdapter.find_id(trait.title) is not None:
+    if len(get_data_traits_versions(trait.title).keys()) != 0:
         return Response(status=400, response=DuplicatedTitleVersion().to_json())
 
     field_name_error = find_field_name_error(trait)

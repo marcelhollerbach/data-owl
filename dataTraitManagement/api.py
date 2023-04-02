@@ -85,7 +85,12 @@ def get_data_traits_versions(searched_name: Union[str, None] = None) -> Dict[str
 
     :return: List of datatraits
     """
-    tmp_concat = hardcoded_default
+    tmp_concat = []
+    if searched_name is not None:
+        tmp_concat.extend([x for x in hardcoded_default if x.title == searched_name])
+    else:
+        tmp_concat.extend(hardcoded_default)
+
     tmp_concat.extend(get_user_managed_data_traits_versions(searched_name))
     return dict((trait.title, trait) for trait in tmp_concat)
 

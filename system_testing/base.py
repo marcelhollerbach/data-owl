@@ -1,6 +1,6 @@
 import requests
 
-from basic import DataTraitInstance
+from basic import DataTraitInstance, DataTrait, TraitAttribute, Formats
 from dataEntries.api import DataEntry
 
 
@@ -39,3 +39,11 @@ STANDARD_PAYLOAD = DataEntry('1111-2222-3333-4444', [
         'State': 'OK'
     })
 ])
+STANDARD_DATATRAIT = DataTrait(
+    author="mail@bu5hm4n.de",
+    title="TestDataTrait",
+    description="A test trait.",
+    version=0,
+    fields=[TraitAttribute(name="Currency", description="The currency this price is measured in",
+                           format=Formats.SIMPLE_STRING), ]
+)

@@ -1,11 +1,13 @@
 import dataclasses
 import logging
+from datetime import datetime
+from typing import Dict
 
 from dataclasses_json import dataclass_json
-from typing import Dict
 
 from basic import DataTrait, DataTraitInstance
 from basic.db import get_db_connection
+from dataEntries.db import DATE_FORMAT
 from dataTraitManagement.api import hardcoded_default, \
     get_data_traits_versions
 
@@ -96,15 +98,24 @@ class DataTraitDBOperation:
         """
         con = get_db_connection()
         cur = con.cursor()
-        cur.execute(f"SELECT count(id) FROM {self.table_decl[2]} GROUP BY ID")
-        result = cur.fetchone()
+        cur.execute(
+            f"SELECT de.id, de.valid_until FROM data_entries de, {self.table_decl[2]} v WHERE de.id = v.id")
+        result = cur.fetchall()
         if result is None:
             return 0
         else:
-            return result[0]
+            usages = 0
+            for line in result:
+                expire_date = datetime.strptime(line[1], DATE_FORMAT)
+                if expire_date >= datetime.now():
+                    usages += 1
+            return usages
 
 
 class DataTraitAdapter:
+    DEFAULT = None
+    META_DATA = None
+
     @staticmethod
     def flush_data_trait_tables():
         """
